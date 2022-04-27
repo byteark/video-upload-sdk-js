@@ -7,11 +7,15 @@ and ByteArk Qoder service.
 
 For Yarn:
 
-```yarn add @byteark/byteark-stream-video-upload-sdk```
+```
+yarn add @byteark/video-upload-sdk
+```
 
 For npm:
 
-```npm install --save @byteark/byteark-stream-video-upload-sdk```
+```
+npm install --save @byteark/video-upload-sdk
+```
 
 ## Usage
 
