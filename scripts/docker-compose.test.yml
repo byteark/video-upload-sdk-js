@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  tusd:
+    image: tusproject/tusd
+    ports:
+      - 1080:1080
+    volumes:
+      - ./volumes/tusd-data:/data
