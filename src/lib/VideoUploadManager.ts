@@ -35,7 +35,7 @@ export class VideoUploadManager {
 
   private started: boolean;
 
-  private maximumConcurentJobs: number;
+  private maximumConcurrentJobs: number;
 
   /**
    *
@@ -49,12 +49,12 @@ export class VideoUploadManager {
     this.createUploader = createUploader || createTusUploader;
     this.jobQueue = new Array<UploadJob>();
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
-    this.maximumConcurentJobs = options.maximumConcurrentJobs || 3;
+    this.maximumConcurrentJobs = options.maximumConcurrentJobs || 3;
   }
 
   /**
    * Replace the options with the new one.
-   * @param newOptions New opptions.
+   * @param newOptions New options.
    */
   setOptions(newOptions: UploadManagerOptions) {
     if (this.started) {
@@ -96,7 +96,7 @@ export class VideoUploadManager {
   /**
    * Start uploading.
    *
-   * @returns Promise that will resolved after uploading has done.
+   * @returns Promise that will resolve after uploading has done.
    */
   async start() {
     if (this.started) {
@@ -109,9 +109,9 @@ export class VideoUploadManager {
       for (
         let index = 0;
         index <
-        (this.jobQueue.length <= this.maximumConcurentJobs
+        (this.jobQueue.length <= this.maximumConcurrentJobs
           ? this.jobQueue.length
-          : this.maximumConcurentJobs);
+          : this.maximumConcurrentJobs);
         index++
       ) {
         this.activeJobList.set(index, this.startUploadJob());
@@ -140,7 +140,7 @@ export class VideoUploadManager {
    */
   uploadNextJob(): void {
     if (
-      this.activeJobList.size < this.maximumConcurentJobs &&
+      this.activeJobList.size < this.maximumConcurrentJobs &&
       this.currentJobIndex < this.jobQueue.length - 1
     ) {
       this.startUploadJob();
