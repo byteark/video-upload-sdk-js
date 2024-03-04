@@ -146,11 +146,8 @@ export class VideoUploadManager {
       this.startUploadJob();
     }
   }
-  async abort(): Promise<UploadJob> {
-    if (!this.currentJob || !this.currentUploader) {
-      return Promise.resolve(this.currentJob);
-    }
 
+  async abort(): Promise<UploadJob> {
     return this.currentUploader.abort();
   }
 }

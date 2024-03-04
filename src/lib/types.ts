@@ -1,6 +1,6 @@
 import { DetailedError } from 'tus-js-client';
 
-export type UploadJobStatus = 'pending' | 'uploading' | 'completed' | 'failed';
+export type UploadJobStatus = 'pending' | 'uploading' | 'completed' | 'failed' | 'cancelled';
 
 export interface UploadJob {
   uploadId: string | number;
