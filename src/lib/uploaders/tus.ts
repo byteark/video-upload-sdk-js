@@ -1,17 +1,22 @@
 import { DetailedError, Upload } from 'tus-js-client';
 
-import { KeyValuePair, UploaderInterface, UploadJob, UploadManagerOptions } from '../types';
+import {
+  KeyValuePair,
+  UploaderInterface,
+  UploadJob,
+  UploadManagerOptions,
+} from '../types';
 import { makeProgressPercent } from '../utils';
 
 export class TusUploader implements UploaderInterface {
-
-  defaultRetryDelays = [0, 5000, 5000, 10000, 10000, 15000, 15000, 20000, 20000, 30000, 30000];
+  defaultRetryDelays = [
+    0, 5000, 5000, 10000, 10000, 15000, 15000, 20000, 20000, 30000, 30000,
+  ];
 
   constructor(
     private job: UploadJob,
     private options: UploadManagerOptions,
-  ) {
-  }
+  ) {}
 
   async start(): Promise<UploadJob> {
     return new Promise<UploadJob>((resolve, reject) => {
@@ -38,11 +43,11 @@ export class TusUploader implements UploaderInterface {
           this.onError(error);
           reject(error);
         },
-      })
+      });
 
       upload.start();
       this.job.status = 'uploading';
-    })
+    });
   }
 
   createEndpointUrl(): string {
@@ -76,7 +81,7 @@ export class TusUploader implements UploaderInterface {
       return {
         ...(this.options.headers || {}),
         Authorization: `Bearer ${this.options.authorizationToken}`,
-      }
+      };
     }
 
     return {
@@ -111,8 +116,8 @@ export class TusUploader implements UploaderInterface {
       return;
     }
 
-    this.triggerCallback(
-      () => this.options.onUploadProgress(this.job, this.job.progress),
+    this.triggerCallback(() =>
+      this.options.onUploadProgress(this.job, this.job.progress),
     );
   }
 
@@ -123,9 +128,7 @@ export class TusUploader implements UploaderInterface {
       return;
     }
 
-    this.triggerCallback(
-      () => this.options.onUploadCompleted(this.job),
-    );
+    this.triggerCallback(() => this.options.onUploadCompleted(this.job));
   }
 
   onError(error: Error | DetailedError): void {
@@ -135,21 +138,23 @@ export class TusUploader implements UploaderInterface {
       return;
     }
 
-    this.triggerCallback(
-      () => this.options.onUploadFailed(this.job, error),
-    );
+    this.triggerCallback(() => this.options.onUploadFailed(this.job, error));
   }
 
   onShouldRetry(error: Error | DetailedError): boolean {
     console.error('Error when uploading', error);
 
-    if (error instanceof Error) {
-      return true;
-    }
+    // if (error instanceof Error) {
+    //   return true;
+    // }
 
-    const responseStatus = error.originalResponse ? error.originalResponse.getStatus() : 0;
-    if (responseStatus === 403) {
-      return false
+    if (error instanceof DetailedError) {
+      const responseStatus = error.originalResponse
+        ? error.originalResponse.getStatus()
+        : 0;
+      if (responseStatus === 403) {
+        return false;
+      }
     }
 
     return true;
@@ -159,12 +164,17 @@ export class TusUploader implements UploaderInterface {
     try {
       callback.call(this);
     } catch (callbackError: unknown) {
-      console.warn('[ByteArkStreamVideoUploadSDKJS] Error occurs when trigger callback', callbackError);
+      console.warn(
+        '[ByteArkStreamVideoUploadSDKJS] Error occurs when trigger callback',
+        callbackError,
+      );
     }
   }
-
 }
 
-export function createTusUploader(job: UploadJob, options: UploadManagerOptions): TusUploader {
+export function createTusUploader(
+  job: UploadJob,
+  options: UploadManagerOptions,
+): TusUploader {
   return new TusUploader(job, options);
 }
