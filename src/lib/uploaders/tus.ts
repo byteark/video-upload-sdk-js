@@ -13,6 +13,8 @@ export class TusUploader implements UploaderInterface {
     0, 5000, 5000, 10000, 10000, 15000, 15000, 20000, 20000, 30000, 30000,
   ];
 
+  private currentUploader: Upload;
+
   constructor(
     private job: UploadJob,
     private options: UploadManagerOptions,
@@ -20,7 +22,7 @@ export class TusUploader implements UploaderInterface {
 
   async start(): Promise<UploadJob> {
     return new Promise<UploadJob>((resolve, reject) => {
-      const upload = new Upload(this.job.file, {
+      this.currentUploader = new Upload(this.job.file, {
         storeFingerprintForResuming: false,
         endpoint: this.createEndpointUrl(),
         uploadUrl: this.createUploadUrl(),
@@ -45,8 +47,22 @@ export class TusUploader implements UploaderInterface {
         },
       });
 
-      upload.start();
+      this.currentUploader.start();
       this.job.status = 'uploading';
+    });
+  }
+
+  async abort(): Promise<UploadJob> {
+    return new Promise<UploadJob>((resolve) => {
+      try {
+        this.currentUploader.abort(false);
+      } catch (error) {
+        // Likely to be "423 Locked" error, but it's already aborted.
+        console.error(error);
+      } finally {
+        this.job.status = 'cancelled';
+        resolve(this.job);
+      }
     });
   }
 
@@ -152,7 +168,13 @@ export class TusUploader implements UploaderInterface {
       const responseStatus = error.originalResponse
         ? error.originalResponse.getStatus()
         : 0;
+
       if (responseStatus === 403) {
+        return false;
+      }
+
+      // This error will be thrown after terminating upload.
+      if (responseStatus === 423) {
         return false;
       }
     }

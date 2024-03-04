@@ -3,7 +3,8 @@ import { DetailedError } from 'tus-js-client';
 export type UploadJobStatus = 'pending'
   | 'uploading'
   | 'completed'
-  | 'failed';
+  | 'failed'
+  | 'cancelled';
 
 export interface UploadJob {
   uploadId: string | number;
@@ -24,7 +25,8 @@ export interface RequestInfo {
 }
 
 export interface UploaderInterface {
-  start(): Promise<UploadJob>
+  start(): Promise<UploadJob>;
+  abort(): Promise<UploadJob>;
 }
 
 export type ServiceName = 'byteark.stream' | 'byteark.qoder' | 'tus';

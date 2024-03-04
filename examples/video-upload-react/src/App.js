@@ -26,7 +26,7 @@ function App() {
   const defaultUploadManagerOptions = {
     serviceName: 'byteark.stream',
     serviceEndpoint: 'https://stream.byteark.com',
-    authorizationToken: '',
+    authorizationToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk1MzQ1NjAsInRva2VuSWQiOiI2NWU1NmQ2MGY4MTdjNzAzYmQxNThhMjIiLCJ1c2VybmFtZSI6Imlub3gtZGV2L2VsdmluQGJzdHVkaW8uY2xpY2sifQ.HOuQzm6l9pZeQeyIuRz1AVkvg0qe08VyQykzLp6iULQ',
     onUploadProgress: () => {
       console.log('Example: onUploadProgress');
       setJobs([...uploadManager.jobQueue]);
@@ -80,7 +80,7 @@ function App() {
         ...defaultUploadManagerOptions,
         serviceName: event.target.serviceName.value,
         serviceEndpoint: event.target.serviceEndpoint.value,
-        authorizationToken: event.target.authorizationToken.value,
+        authorizationToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk1MzQ1NjAsInRva2VuSWQiOiI2NWU1NmQ2MGY4MTdjNzAzYmQxNThhMjIiLCJ1c2VybmFtZSI6Imlub3gtZGV2L2VsdmluQGJzdHVkaW8uY2xpY2sifQ.HOuQzm6l9pZeQeyIuRz1AVkvg0qe08VyQykzLp6iULQ',
       };
       setUploadManagerOptions(options);
       uploadManager.setOptions(options);
@@ -123,6 +123,12 @@ function App() {
     console.log('Example: onClickStartButton');
 
     uploadManager.start();
+  }, [uploadManager]);
+
+  const onClickCancelButton = useCallback(() => {
+    console.log('Example: onClickCancelButton');
+
+    uploadManager.abort();
   }, [uploadManager]);
 
   const MemoUploadForm = React.memo(() => (
@@ -191,6 +197,13 @@ function App() {
                   onClick={onClickStartButton}
                 >
                   Start
+                </button>
+                <button
+                  className="bg-red-500 text-white font-bold py-2 px-4 rounded ml-2"
+                  type="button"
+                  onClick={onClickCancelButton}
+                >
+                  Cancel Uploading
                 </button>
               </div>
             </div>
