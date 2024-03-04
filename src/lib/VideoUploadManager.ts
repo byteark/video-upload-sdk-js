@@ -138,7 +138,7 @@ export class VideoUploadManager {
   /**
    * Check whether we can run the next upload job and execute it if possible.
    */
-  uploadNextJob() {
+  uploadNextJob(): void {
     if (
       this.activeJobList.size < this.maximumConcurentJobs &&
       this.currentJobIndex < this.jobQueue.length - 1
