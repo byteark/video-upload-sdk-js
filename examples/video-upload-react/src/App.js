@@ -27,6 +27,7 @@ function App() {
     serviceName: 'byteark.stream',
     serviceEndpoint: 'https://stream.byteark.com',
     authorizationToken: '',
+    maximumConcurrentJobs: 2,
     onUploadProgress: () => {
       console.log('Example: onUploadProgress');
       setJobs([...uploadManager.jobQueue]);
