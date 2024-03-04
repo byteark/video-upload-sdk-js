@@ -26,7 +26,8 @@ function App() {
   const defaultUploadManagerOptions = {
     serviceName: 'byteark.stream',
     serviceEndpoint: 'https://stream.byteark.com',
-    authorizationToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk1MzQ1NjAsInRva2VuSWQiOiI2NWU1NmQ2MGY4MTdjNzAzYmQxNThhMjIiLCJ1c2VybmFtZSI6Imlub3gtZGV2L2VsdmluQGJzdHVkaW8uY2xpY2sifQ.HOuQzm6l9pZeQeyIuRz1AVkvg0qe08VyQykzLp6iULQ',
+    authorizationToken: '',
+    maximumConcurrentJobs: 2,
     onUploadProgress: () => {
       console.log('Example: onUploadProgress');
       setJobs([...uploadManager.jobQueue]);
@@ -80,7 +81,7 @@ function App() {
         ...defaultUploadManagerOptions,
         serviceName: event.target.serviceName.value,
         serviceEndpoint: event.target.serviceEndpoint.value,
-        authorizationToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MDk1MzQ1NjAsInRva2VuSWQiOiI2NWU1NmQ2MGY4MTdjNzAzYmQxNThhMjIiLCJ1c2VybmFtZSI6Imlub3gtZGV2L2VsdmluQGJzdHVkaW8uY2xpY2sifQ.HOuQzm6l9pZeQeyIuRz1AVkvg0qe08VyQykzLp6iULQ',
+        authorizationToken: event.target.authorizationToken.value,
       };
       setUploadManagerOptions(options);
       uploadManager.setOptions(options);

@@ -1,10 +1,6 @@
 import { DetailedError } from 'tus-js-client';
 
-export type UploadJobStatus = 'pending'
-  | 'uploading'
-  | 'completed'
-  | 'failed'
-  | 'cancelled';
+export type UploadJobStatus = 'pending' | 'uploading' | 'completed' | 'failed';
 
 export interface UploadJob {
   uploadId: string | number;
@@ -31,7 +27,10 @@ export interface UploaderInterface {
 
 export type ServiceName = 'byteark.stream' | 'byteark.qoder' | 'tus';
 
-export type CreateUploader = (job: UploadJob, options: UploadManagerOptions) => UploaderInterface;
+export type CreateUploader = (
+  job: UploadJob,
+  options: UploadManagerOptions,
+) => UploaderInterface;
 
 export interface KeyValuePair {
   [key: string]: string;
@@ -49,4 +48,5 @@ export interface UploadManagerOptions extends UploadManagerCallbacks {
   serviceEndpoint: string;
   authorizationToken?: string;
   headers?: KeyValuePair;
+  maximumConcurrentJobs?: number;
 }

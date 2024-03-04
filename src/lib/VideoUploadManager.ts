@@ -1,6 +1,11 @@
-import { CreateUploader, UploaderInterface, UploadJob, UploadManagerOptions } from './types';
+import {
+  CreateUploader,
+  UploaderInterface,
+  UploadJob,
+  UploadManagerOptions,
+} from './types';
 import { createTusUploader } from './uploaders/tus';
-import { delay } from './utils';
+// import { delay } from './utils';
 
 type UploadId = string | number;
 
@@ -14,16 +19,15 @@ type UploadId = string | number;
  * 3. After adding all videos to upload, call `start` method.
  */
 export class VideoUploadManager {
-
   public readonly uploadIds: UploadId[];
 
   private jobQueue: UploadJob[];
 
   private jobsByUploadId: Map<UploadId, UploadJob>;
 
-  private currentJobIndex = -1;
+  private activeJobList: Map<number, Promise<void>> = new Map();
 
-  private currentJob: UploadJob | null = null;
+  private currentJobIndex = -1;
 
   private currentUploader: UploaderInterface;
 
@@ -31,15 +35,21 @@ export class VideoUploadManager {
 
   private started: boolean;
 
+  private maximumConcurentJobs: number;
+
   /**
    *
    * @param options Uploading options
    * @param createUploader Optional parameter to custom how uploader is created. Usually use for testing only.
    */
-  constructor(private options: UploadManagerOptions, createUploader?: CreateUploader) {
+  constructor(
+    private options: UploadManagerOptions,
+    createUploader?: CreateUploader,
+  ) {
     this.createUploader = createUploader || createTusUploader;
     this.jobQueue = new Array<UploadJob>();
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
+    this.maximumConcurentJobs = options.maximumConcurrentJobs || 3;
   }
 
   /**
@@ -53,7 +63,6 @@ export class VideoUploadManager {
 
     this.options = newOptions;
   }
-
 
   /**
    * Add a upload job to the queue.
@@ -96,32 +105,47 @@ export class VideoUploadManager {
 
     this.started = true;
 
-    while (this.started) {
-      try {
-        const result = await this.uploadNextJob();
-        if (!result) {
-          this.started = false;
-        }
-      } catch (err: unknown) {
-        console.error('Uploading failed', err);
+    if (this.started) {
+      for (
+        let index = 0;
+        index <
+        (this.jobQueue.length <= this.maximumConcurentJobs
+          ? this.jobQueue.length
+          : this.maximumConcurentJobs);
+        index++
+      ) {
+        this.activeJobList.set(index, this.startUploadJob());
       }
-
-      await delay(1000);
     }
   }
 
-  async uploadNextJob(): Promise<UploadJob | null> {
-    if (this.currentJobIndex >= this.jobQueue.length - 1) {
-      return Promise.resolve(null);
-    }
-
+  /**
+   * Execute the upload job and remove it from the active list upon completion.
+   */
+  async startUploadJob(): Promise<void> {
     this.currentJobIndex += 1;
-    this.currentJob = this.jobQueue[this.currentJobIndex];
-    this.currentUploader = this.createUploader(this.currentJob, this.options);
 
-    return this.currentUploader.start();
+    this.currentUploader = this.createUploader(
+      this.jobQueue[this.currentJobIndex],
+      this.options,
+    );
+    await this.currentUploader.start();
+    // Clear out finished job.
+    this.activeJobList.delete(this.currentJobIndex);
+    this.uploadNextJob();
   }
 
+  /**
+   * Check whether we can run the next upload job and execute it if possible.
+   */
+  uploadNextJob(): void {
+    if (
+      this.activeJobList.size < this.maximumConcurentJobs &&
+      this.currentJobIndex < this.jobQueue.length - 1
+    ) {
+      this.startUploadJob();
+    }
+  }
   async abort(): Promise<UploadJob> {
     if (!this.currentJob || !this.currentUploader) {
       return Promise.resolve(this.currentJob);
