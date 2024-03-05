@@ -138,7 +138,7 @@ export class VideoUploadManager {
     this.uploadNextJob();
   }
 
-  async pause(uploadId: UploadId): Promise<UploadJob> {
+  async pauseUploadById(uploadId: UploadId): Promise<UploadJob> {
     const jobData = this.jobsByUploadId.get(uploadId);
     const uploader = this.activeUploaderList.get(uploadId);
 
@@ -158,7 +158,7 @@ export class VideoUploadManager {
     return uploader.pause();
   }
 
-  async resume(uploadId: UploadId): Promise<UploadJob> {
+  async resumeUploadById(uploadId: UploadId): Promise<UploadJob> {
     const jobData = this.jobsByUploadId.get(uploadId);
     const uploader = this.pausedUploaderList.get(uploadId);
 
@@ -189,10 +189,10 @@ export class VideoUploadManager {
     }
   }
 
-  async abort(uploadId: UploadId): Promise<UploadJob> {
+  async cancelUploadById(uploadId: UploadId): Promise<UploadJob> {
     const uploader = this.activeUploaderList.get(uploadId);
     this.activeUploaderList.delete(uploadId);
     this.uploadNextJob();
-    return uploader.abort();
+    return uploader.abort(true);
   }
 }

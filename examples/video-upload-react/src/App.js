@@ -159,7 +159,7 @@ function App() {
     (uploadId) => {
       console.log('Example: onClickResumeButton');
 
-      uploadManager.resume(uploadId);
+      uploadManager.resumeUploadById(uploadId);
     },
     [uploadManager],
   );
@@ -168,7 +168,7 @@ function App() {
     (uploadId) => {
       console.log('Example: onClickPauseButton');
 
-      uploadManager.pause(uploadId);
+      uploadManager.pauseUploadById(uploadId);
     },
     [uploadManager],
   );
@@ -177,7 +177,7 @@ function App() {
     (uploadId) => {
       console.log('Example: onClickCancelButton');
 
-      uploadManager.cancel(uploadId);
+      uploadManager.cancelUploadById(uploadId);
     },
     [uploadManager],
   );

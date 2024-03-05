@@ -28,7 +28,7 @@ export interface RequestInfo {
 
 export interface UploaderInterface {
   start(): Promise<UploadJob>;
-  abort(): Promise<UploadJob>;
+  abort(shouldTerminate?: boolean): Promise<UploadJob>;
   pause(): Promise<UploadJob>;
   resume(): Promise<UploadJob>;
 }
