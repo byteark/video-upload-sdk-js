@@ -22,7 +22,7 @@ export interface RequestInfo {
 
 export interface UploaderInterface {
   start(): Promise<UploadJob>;
-  abort(): Promise<UploadJob>;
+  abort(shouldTerminate?: boolean): Promise<UploadJob>;
 }
 
 export type ServiceName = 'byteark.stream' | 'byteark.qoder' | 'tus';
