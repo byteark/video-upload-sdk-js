@@ -137,7 +137,7 @@ function App() {
   const onClickCancelButton = useCallback((uploadId) => {
     console.log('Example: onClickCancelButton');
 
-    uploadManager.abort(uploadId);
+    uploadManager.cancelUploadById(uploadId);
   }, [uploadManager]);
 
   const MemoUploadForm = React.memo(() => (

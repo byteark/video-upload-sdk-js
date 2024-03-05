@@ -151,8 +151,8 @@ export class VideoUploadManager {
     }
   }
 
-  async abort(uploadId: UploadId): Promise<UploadJob> {
+  async cancelUploadById(uploadId: UploadId): Promise<UploadJob> {
     const uploader = this.activeUploaderList.get(uploadId);
-    return uploader.abort();
+    return uploader.abort(true);
   }
 }
