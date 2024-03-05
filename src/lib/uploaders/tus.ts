@@ -66,6 +66,34 @@ export class TusUploader implements UploaderInterface {
     });
   }
 
+  async pause(): Promise<UploadJob> {
+    return new Promise<UploadJob>((resolve) => {
+      try {
+        this.currentUploader.abort(false);
+      } catch (error) {
+        // Likely to be "423 Locked" error, but it's already aborted.
+        console.error(error);
+      } finally {
+        this.job.status = 'paused';
+        resolve(this.job);
+      }
+    });
+  }
+
+  async resume(): Promise<UploadJob> {
+    return new Promise<UploadJob>((resolve) => {
+      try {
+        this.currentUploader.start();
+      } catch (error) {
+        // Likely to be "423 Locked" error, but it's already aborted.
+        console.error(error);
+      } finally {
+        this.job.status = 'uploading';
+        resolve(this.job);
+      }
+    });
+  }
+
   createEndpointUrl(): string {
     switch (this.options.serviceName) {
       case 'byteark.stream':

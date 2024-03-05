@@ -27,6 +27,8 @@ export class VideoUploadManager {
 
   private activeUploaderList: Map<UploadId, UploaderInterface> = new Map();
 
+  private pausedUploaderList: Map<UploadId, UploaderInterface> = new Map();
+
   private currentJobIndex = -1;
 
   private currentUploader: UploaderInterface;
@@ -126,10 +128,7 @@ export class VideoUploadManager {
     this.currentJobIndex += 1;
     const currentJob = this.jobQueue[this.currentJobIndex];
 
-    this.currentUploader = this.createUploader(
-      currentJob,
-      this.options,
-    );
+    this.currentUploader = this.createUploader(currentJob, this.options);
 
     this.activeUploaderList.set(currentJob.uploadId, this.currentUploader);
 
@@ -137,6 +136,45 @@ export class VideoUploadManager {
     // Clear out finished job.
     this.activeUploaderList.delete(currentJob.uploadId);
     this.uploadNextJob();
+  }
+
+  async pause(uploadId: UploadId): Promise<UploadJob> {
+    const jobData = this.jobsByUploadId.get(uploadId);
+    const uploader = this.activeUploaderList.get(uploadId);
+
+    if (!jobData) {
+      throw new Error(
+        `A video with the ID ${uploadId} is not found in job queue.`,
+      );
+    }
+    if (!uploader) {
+      throw new Error(`A video with the ID ${uploadId} is not uploading.`);
+    }
+
+    // Clear out paused job.
+    this.pausedUploaderList.set(uploadId, uploader);
+    this.activeUploaderList.delete(uploadId);
+    this.uploadNextJob();
+    return uploader.pause();
+  }
+
+  async resume(uploadId: UploadId): Promise<UploadJob> {
+    const jobData = this.jobsByUploadId.get(uploadId);
+    const uploader = this.pausedUploaderList.get(uploadId);
+
+    if (!jobData) {
+      throw new Error(
+        `A video with the ID ${uploadId} is not found in job queue.`,
+      );
+    }
+    if (!uploader) {
+      throw new Error(`A video with the ID ${uploadId} is not paused.`);
+    }
+
+    // Clear out paused job.
+    this.activeUploaderList.set(uploadId, uploader);
+    this.pausedUploaderList.delete(uploadId);
+    return uploader.resume();
   }
 
   /**
@@ -153,6 +191,8 @@ export class VideoUploadManager {
 
   async abort(uploadId: UploadId): Promise<UploadJob> {
     const uploader = this.activeUploaderList.get(uploadId);
+    this.activeUploaderList.delete(uploadId);
+    this.uploadNextJob();
     return uploader.abort();
   }
 }
