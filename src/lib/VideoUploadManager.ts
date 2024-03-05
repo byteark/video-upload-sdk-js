@@ -25,7 +25,7 @@ export class VideoUploadManager {
 
   private jobsByUploadId: Map<UploadId, UploadJob>;
 
-  private activeJobList: Map<number, Promise<void>> = new Map();
+  private activeUploaderList: Map<UploadId, UploaderInterface> = new Map();
 
   private currentJobIndex = -1;
 
@@ -114,7 +114,7 @@ export class VideoUploadManager {
           : this.maximumConcurrentJobs);
         index++
       ) {
-        this.activeJobList.set(index, this.startUploadJob());
+        this.startUploadJob();
       }
     }
   }
@@ -124,14 +124,18 @@ export class VideoUploadManager {
    */
   async startUploadJob(): Promise<void> {
     this.currentJobIndex += 1;
+    const currentJob = this.jobQueue[this.currentJobIndex];
 
     this.currentUploader = this.createUploader(
-      this.jobQueue[this.currentJobIndex],
+      currentJob,
       this.options,
     );
+
+    this.activeUploaderList.set(currentJob.uploadId, this.currentUploader);
+
     await this.currentUploader.start();
     // Clear out finished job.
-    this.activeJobList.delete(this.currentJobIndex);
+    this.activeUploaderList.delete(currentJob.uploadId);
     this.uploadNextJob();
   }
 
@@ -140,14 +144,15 @@ export class VideoUploadManager {
    */
   uploadNextJob(): void {
     if (
-      this.activeJobList.size < this.maximumConcurrentJobs &&
+      this.activeUploaderList.size < this.maximumConcurrentJobs &&
       this.currentJobIndex < this.jobQueue.length - 1
     ) {
       this.startUploadJob();
     }
   }
 
-  async abort(): Promise<UploadJob> {
-    return this.currentUploader.abort();
+  async abort(uploadId: UploadId): Promise<UploadJob> {
+    const uploader = this.activeUploaderList.get(uploadId);
+    return uploader.abort();
   }
 }
