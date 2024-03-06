@@ -220,4 +220,30 @@ export class VideoUploadManager {
 
     return uploader.abort(true);
   }
+
+  async cancelAll(): Promise<UploadJob[]> {
+    const pausedUploadIds = Array.from(this.pausedUploaderList.keys());
+    const activeUploadIds = Array.from(this.activeUploaderList.keys());
+
+    const cancelledUploadsPromises = [
+      ...pausedUploadIds.map((uploadId) => (
+        this.cancelUploadById(uploadId, false)
+      )),
+      ...activeUploadIds.map((uploadId) => (
+        this.cancelUploadById(uploadId, false)
+      )),
+    ];
+
+    const results = await Promise.all(cancelledUploadsPromises);
+
+    this.pausedUploaderList.clear();
+    this.activeUploaderList.clear();
+
+    this.jobQueue = this.jobQueue.map((queue) => ({
+      ...queue,
+      status: 'cancelled',
+    }));
+
+    return results;
+  }
 }
