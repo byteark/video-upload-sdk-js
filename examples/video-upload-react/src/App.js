@@ -3,20 +3,28 @@ import { VideoUploadManager } from '@byteark/video-upload-sdk';
 import { UploadForm } from './UploadForm';
 
 function JobItem(props) {
-  const { uploadId, name, status, progress } = props;
+  const { uploadId, name, status, progress, onClickCancelButton } = props;
 
   return (
     <li className="p-4 py-3 sm:py-4">
       <div className="flex items-center space-x-4">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{name}</p>
+          <p className="text-sm font-medium truncate">{ name }</p>
           <p className="text-sm text-gray-500 truncate">
-            #{uploadId} - {status}
+            #{ uploadId } - { status }
           </p>
         </div>
-        <div className="inline-flex items-center text-base font-semibold text-gray-900">
-          {progress ? `${progress.percent}%` : ''}
+        <div
+          className="inline-flex items-center text-base font-semibold text-gray-900">
+          { progress ? `${ progress.percent }%` : '' }
         </div>
+        <button
+          className="bg-red-500 text-white font-bold py-2 px-4 rounded ml-2"
+          type="button"
+          onClick={onClickCancelButton}
+        >
+          Cancel
+        </button>
       </div>
     </li>
   );
@@ -126,6 +134,12 @@ function App() {
     uploadManager.start();
   }, [uploadManager]);
 
+  const onClickCancelButton = useCallback((uploadId) => {
+    console.log('Example: onClickCancelButton');
+
+    uploadManager.cancelUploadById(uploadId);
+  }, [uploadManager]);
+
   const MemoUploadForm = React.memo(() => (
     <UploadForm onSubmit={onClickAddVideoButton} />
   ));
@@ -182,7 +196,11 @@ function App() {
             <div className="max-w-md bg-white rounded-lg border">
               <ul className="h-96 divide-y divide-gray-200">
                 {jobs.map((job) => (
-                  <JobItem key={job.uploadId} {...job} />
+                  <JobItem
+                    {...job}
+                    key={job.uploadId}
+                    onClickCancelButton={() => onClickCancelButton(job.uploadId)}
+                  />
                 ))}
               </ul>
               <div className="p-4 border-t">

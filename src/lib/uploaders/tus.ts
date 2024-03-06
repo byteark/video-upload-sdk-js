@@ -13,6 +13,8 @@ export class TusUploader implements UploaderInterface {
     0, 5000, 5000, 10000, 10000, 15000, 15000, 20000, 20000, 30000, 30000,
   ];
 
+  private currentUploader: Upload;
+
   constructor(
     private job: UploadJob,
     private options: UploadManagerOptions,
@@ -20,7 +22,7 @@ export class TusUploader implements UploaderInterface {
 
   async start(): Promise<UploadJob> {
     return new Promise<UploadJob>((resolve, reject) => {
-      const upload = new Upload(this.job.file, {
+      this.currentUploader = new Upload(this.job.file, {
         storeFingerprintForResuming: false,
         endpoint: this.createEndpointUrl(),
         uploadUrl: this.createUploadUrl(),
@@ -45,8 +47,19 @@ export class TusUploader implements UploaderInterface {
         },
       });
 
-      upload.start();
+      this.currentUploader.start();
       this.job.status = 'uploading';
+    });
+  }
+
+  /**
+   * @param shouldTerminate true when allow resuming upload later, false when cancelling upload.
+   */
+  async abort(shouldTerminate = false): Promise<UploadJob> {
+    return new Promise<UploadJob>((resolve) => {
+      this.currentUploader.abort(shouldTerminate);
+      this.job.status = shouldTerminate ? 'cancelled' : 'paused';
+      resolve(this.job);
     });
   }
 
@@ -142,21 +155,30 @@ export class TusUploader implements UploaderInterface {
   }
 
   onShouldRetry(error: Error | DetailedError): boolean {
-    console.error('Error when uploading', error);
-
-    // if (error instanceof Error) {
-    //   return true;
-    // }
-
     if (error instanceof DetailedError) {
       const responseStatus = error.originalResponse
         ? error.originalResponse.getStatus()
         : 0;
+
+      // TUS will automatically retry terminating upload if the responseStatus is 423
+      if (responseStatus !== 423) {
+        console.error('Error when uploading', error);
+      }
+
       if (responseStatus === 403) {
         return false;
       }
+
+      /**
+       * This error will be thrown after aborting and terminating upload.
+       * Allow TUS to retry until the server returns 204 No Content.
+       */
+      if (responseStatus === 423) {
+        return true;
+      }
     }
 
+    console.error('Error when uploading', error);
     return true;
   }
 
