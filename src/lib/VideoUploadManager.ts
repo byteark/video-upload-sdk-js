@@ -221,7 +221,7 @@ export class VideoUploadManager {
     return uploader.abort(true);
   }
 
-  async cancelAll(): Promise<UploadJob[]> {
+  async cancelAll(): Promise<void> {
     const pausedUploadIds = Array.from(this.pausedUploaderList.keys());
     const activeUploadIds = Array.from(this.activeUploaderList.keys());
 
@@ -234,7 +234,7 @@ export class VideoUploadManager {
       )),
     ];
 
-    const results = await Promise.all(cancelledUploadsPromises);
+    await Promise.all(cancelledUploadsPromises);
 
     this.pausedUploaderList.clear();
     this.activeUploaderList.clear();
@@ -244,6 +244,6 @@ export class VideoUploadManager {
       status: 'cancelled',
     }));
 
-    return results;
+    this.started = false;
   }
 }
