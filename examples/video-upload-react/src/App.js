@@ -2,6 +2,35 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { VideoUploadManager } from '@byteark/video-upload-sdk';
 import { UploadForm } from './UploadForm';
 
+const disabledClass = 'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed';
+
+function JobActionButton({ bgColor = 'blue', onClick, status, text }) {
+  const getDisabledCondition = () => {
+    const baseDisabled = status === 'pending' || status === 'cancelled';
+
+    if (text === 'Resume') {
+      return baseDisabled && status !== 'uploading';
+    }
+
+    if (text === 'paused') {
+      return baseDisabled && status !== 'paused';
+    }
+
+    return baseDisabled;
+  };
+
+  return (
+    <button
+      className={`bg-${bgColor}-500 text-white py-2 px-4 rounded ml-2 ${disabledClass}`}
+      type="button"
+      onClick={onClick}
+      disabled={getDisabledCondition()}
+    >
+      {text}
+    </button>
+  );
+}
+
 function JobItem(props) {
   const {
     uploadId,
@@ -25,27 +54,23 @@ function JobItem(props) {
         <div className="inline-flex items-center text-base font-semibold text-gray-900">
           {progress ? `${progress.percent}%` : ''}
         </div>
-        <button
-          className="bg-blue-500 text-white font-bold py-2 px-4 rounded ml-2"
-          type="button"
+        <JobActionButton
+          text="Resume"
+          status={status}
           onClick={onClickResumeButton}
-        >
-          Resume
-        </button>
-        <button
-          className="bg-gray-500 text-white font-bold py-2 px-4 rounded ml-2"
-          type="button"
+        />
+        <JobActionButton
+          bgColor="gray"
+          text="Pause"
+          status={status}
           onClick={onClickPauseButton}
-        >
-          Pause
-        </button>
-        <button
-          className="bg-red-500 text-white font-bold py-2 px-4 rounded ml-2"
-          type="button"
+        />
+        <JobActionButton
+          bgColor="red"
+          text="Cancel"
+          status={status}
           onClick={onClickCancelButton}
-        >
-          Cancel
-        </button>
+        />
       </div>
     </li>
   );
@@ -59,15 +84,15 @@ function App() {
     maximumConcurrentJobs: 2,
     onUploadProgress: () => {
       console.log('Example: onUploadProgress');
-      setJobs([...uploadManager.jobQueue]);
+      setJobs([...uploadManager.getJobQueue()]);
     },
     onUploadCompleted: () => {
       console.log('Example: onUploadCompleted');
-      setJobs([...uploadManager.jobQueue]);
+      setJobs([...uploadManager.getJobQueue()]);
     },
     onUploadFailed: () => {
       console.log('Example: onUploadFailed');
-      setJobs([...uploadManager.jobQueue]);
+      setJobs([...uploadManager.getJobQueue()]);
     },
   };
 
@@ -89,15 +114,15 @@ function App() {
       ...defaultUploadManagerOptions,
       onUploadProgress: () => {
         console.log('Example: onUploadProgress');
-        setJobs([...uploadManager.jobQueue]);
+        setJobs([...uploadManager.getJobQueue()]);
       },
       onUploadCompleted: () => {
         console.log('Example: onUploadCompleted');
-        setJobs([...uploadManager.jobQueue]);
+        setJobs([...uploadManager.getJobQueue()]);
       },
       onUploadFailed: () => {
         console.log('Example: onUploadFailed');
-        setJobs([...uploadManager.jobQueue]);
+        setJobs([...uploadManager.getJobQueue()]);
       },
     });
     setUploadManager(uploadManager);
@@ -146,7 +171,7 @@ function App() {
     } else {
       uploadManager.addUploadJob(data.uploadId, data.file);
     }
-    setJobs([...uploadManager.jobQueue]);
+    setJobs([...uploadManager.getJobQueue()]);
   };
 
   const onClickStartButton = useCallback(() => {
@@ -165,19 +190,31 @@ function App() {
   );
 
   const onClickPauseButton = useCallback(
-    (uploadId) => {
+    async (uploadId) => {
       console.log('Example: onClickPauseButton');
 
       uploadManager.pauseUploadById(uploadId);
+      setJobs([...uploadManager.getJobQueue()]);
     },
     [uploadManager],
   );
 
   const onClickCancelButton = useCallback(
-    (uploadId) => {
+    async (uploadId) => {
       console.log('Example: onClickCancelButton');
 
-      uploadManager.cancelUploadById(uploadId);
+      await uploadManager.cancelUploadById(uploadId);
+      setJobs([...uploadManager.getJobQueue()]);
+    },
+    [uploadManager],
+  );
+
+  const onClickCancelAllButton = useCallback(
+    async () => {
+      console.log('Example: onClickCancelAllButton');
+
+      await uploadManager.cancelAll();
+      setJobs([...uploadManager.getJobQueue()]);
     },
     [uploadManager],
   );
@@ -240,24 +277,36 @@ function App() {
                 {jobs.map((job) => (
                   <JobItem
                     {...job}
-                    key={job.uploadId}
+                    key={`${job.uploadId}-${job.status}`}
                     onClickCancelButton={() =>
                       onClickCancelButton(job.uploadId)
                     }
                     onClickResumeButton={() =>
                       onClickResumeButton(job.uploadId)
                     }
-                    onClickPauseButton={() => onClickPauseButton(job.uploadId)}
+                    onClickPauseButton={() =>
+                      onClickPauseButton(job.uploadId)
+                  }
                   />
                 ))}
               </ul>
               <div className="p-4 border-t">
                 <button
-                  className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                  className={`bg-blue-500 text-white font-bold py-2 px-4 rounded ${disabledClass}`}
                   type="button"
                   onClick={onClickStartButton}
+                  disabled={jobs.length === 0 || uploadManager.getIsUploadStarted()}
                 >
                   Start
+                </button>
+                <button
+                  className={`bg-red-500 text-white font-bold py-2 px-4 rounded ml-2 ${disabledClass}`}
+                  type="button"
+                  onClick={onClickCancelAllButton}
+                  disabled={jobs.length === 0 || !uploadManager.getIsUploadStarted()
+                    || uploadManager.getIsAllUploadCancelled()}
+                >
+                  Cancel All
                 </button>
               </div>
             </div>
