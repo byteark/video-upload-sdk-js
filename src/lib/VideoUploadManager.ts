@@ -48,6 +48,23 @@ export class VideoUploadManager {
     private options: UploadManagerOptions,
     createUploader?: CreateUploader,
   ) {
+    if (options === undefined || options === null) {
+      throw new Error('VideoUploadManager requires an \'options\' parameter.');
+    }
+
+    if (typeof options !== 'object') {
+      throw new Error('An \'options\' parameter needs to be an object.');
+    }
+
+    const requiredOptionFields = ['serviceName', 'serviceEndpoint'];
+    const missingRequiredOptions = requiredOptionFields.filter(
+      (option) => !options[option]
+    );
+
+    if (missingRequiredOptions.length > 0) {
+      throw new Error(`${missingRequiredOptions.join(' and ')} ${missingRequiredOptions.length > 1 ? 'are' : 'is'} required in the option parameter.`);
+    }
+
     this.createUploader = createUploader || createTusUploader;
     this.jobQueue = new Array<UploadJob>();
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
