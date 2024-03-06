@@ -37,7 +37,8 @@
       "dom"
     ],
     "types": [
-      "node"
+      "node",
+      "jest"
     ],
     "typeRoots": [
       "node_modules/@types",
