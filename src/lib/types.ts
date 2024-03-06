@@ -1,6 +1,12 @@
 import { DetailedError } from 'tus-js-client';
 
-export type UploadJobStatus = 'pending' | 'uploading' | 'completed' | 'failed' | 'cancelled' | 'paused';
+export type UploadJobStatus =
+  | 'pending'
+  | 'uploading'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'paused';
 
 export interface UploadJob {
   uploadId: string | number;
@@ -23,6 +29,8 @@ export interface RequestInfo {
 export interface UploaderInterface {
   start(): Promise<UploadJob>;
   abort(shouldTerminate?: boolean): Promise<UploadJob>;
+  pause(): Promise<UploadJob>;
+  resume(): Promise<UploadJob>;
 }
 
 export type ServiceName = 'byteark.stream' | 'byteark.qoder' | 'tus';

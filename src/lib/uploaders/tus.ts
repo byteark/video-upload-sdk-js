@@ -63,6 +63,21 @@ export class TusUploader implements UploaderInterface {
     });
   }
 
+  async pause(): Promise<UploadJob> {
+    return new Promise<UploadJob>((resolve) => {
+      this.currentUploader.abort(false);
+      resolve(this.job);
+    });
+  }
+
+  async resume(): Promise<UploadJob> {
+    return new Promise<UploadJob>((resolve) => {
+      this.currentUploader.start();
+      this.job.status = 'uploading';
+      resolve(this.job);
+    });
+  }
+
   createEndpointUrl(): string {
     switch (this.options.serviceName) {
       case 'byteark.stream':

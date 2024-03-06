@@ -3,21 +3,42 @@ import { VideoUploadManager } from '@byteark/video-upload-sdk';
 import { UploadForm } from './UploadForm';
 
 function JobItem(props) {
-  const { uploadId, name, status, progress, onClickCancelButton } = props;
+  const {
+    uploadId,
+    name,
+    status,
+    progress,
+    onClickCancelButton,
+    onClickResumeButton,
+    onClickPauseButton,
+  } = props;
 
   return (
     <li className="p-4 py-3 sm:py-4">
       <div className="flex items-center space-x-4">
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">{ name }</p>
+          <p className="text-sm font-medium truncate">{name}</p>
           <p className="text-sm text-gray-500 truncate">
-            #{ uploadId } - { status }
+            #{uploadId} - {status}
           </p>
         </div>
-        <div
-          className="inline-flex items-center text-base font-semibold text-gray-900">
-          { progress ? `${ progress.percent }%` : '' }
+        <div className="inline-flex items-center text-base font-semibold text-gray-900">
+          {progress ? `${progress.percent}%` : ''}
         </div>
+        <button
+          className="bg-blue-500 text-white font-bold py-2 px-4 rounded ml-2"
+          type="button"
+          onClick={onClickResumeButton}
+        >
+          Resume
+        </button>
+        <button
+          className="bg-gray-500 text-white font-bold py-2 px-4 rounded ml-2"
+          type="button"
+          onClick={onClickPauseButton}
+        >
+          Pause
+        </button>
         <button
           className="bg-red-500 text-white font-bold py-2 px-4 rounded ml-2"
           type="button"
@@ -134,11 +155,32 @@ function App() {
     uploadManager.start();
   }, [uploadManager]);
 
-  const onClickCancelButton = useCallback((uploadId) => {
-    console.log('Example: onClickCancelButton');
+  const onClickResumeButton = useCallback(
+    (uploadId) => {
+      console.log('Example: onClickResumeButton');
 
-    uploadManager.cancelUploadById(uploadId);
-  }, [uploadManager]);
+      uploadManager.resumeUploadById(uploadId);
+    },
+    [uploadManager],
+  );
+
+  const onClickPauseButton = useCallback(
+    (uploadId) => {
+      console.log('Example: onClickPauseButton');
+
+      uploadManager.pauseUploadById(uploadId);
+    },
+    [uploadManager],
+  );
+
+  const onClickCancelButton = useCallback(
+    (uploadId) => {
+      console.log('Example: onClickCancelButton');
+
+      uploadManager.cancelUploadById(uploadId);
+    },
+    [uploadManager],
+  );
 
   const MemoUploadForm = React.memo(() => (
     <UploadForm onSubmit={onClickAddVideoButton} />
@@ -193,13 +235,19 @@ function App() {
             <MemoUploadForm />
           </div>
           <div className="basis-3/4">
-            <div className="max-w-md bg-white rounded-lg border">
+            <div className="bg-white rounded-lg border">
               <ul className="h-96 divide-y divide-gray-200">
                 {jobs.map((job) => (
                   <JobItem
                     {...job}
                     key={job.uploadId}
-                    onClickCancelButton={() => onClickCancelButton(job.uploadId)}
+                    onClickCancelButton={() =>
+                      onClickCancelButton(job.uploadId)
+                    }
+                    onClickResumeButton={() =>
+                      onClickResumeButton(job.uploadId)
+                    }
+                    onClickPauseButton={() => onClickPauseButton(job.uploadId)}
                   />
                 ))}
               </ul>
