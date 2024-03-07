@@ -59,8 +59,43 @@ async function main() {
 main();
 ```
 
-## Example Applications
+## Getters
 
-We have an example applications in
+| Name        | Returns     | Description                                       |
+|-------------|-------------|---------------------------------------------------|
+| getJobQueue | UploadJob[] | An array of job queue.                            |
+| getJobByUploadId  | UploadJob   | A job by the provided uploadId.                   |
+| getIsUploadStarted            | boolean     | Returns true if any upload job has started.       |
+| getIsAllUploadCancelled            | boolean     | Returns true if all job queue has been cancelled. |
+
+## Methods
+
+### addUploadJob()
+Add an upload job to a job queue. The method returns `void`.
+
+### setOptions(newOptions: UploadManagerOptions)
+Add an upload job to a job queue. The method returns `void`.
+
+### start()
+Start uploading from a job queue. The method returns `Promise<void>`.
+
+### pauseUploadById(uploadId: UploadId)
+Pause a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+
+### resumeUploadById(uploadId: UploadId)
+Pause a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+
+### pauseUploadById(uploadId: UploadId)
+Resume a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+
+### cancelUploadById(uploadId: UploadId)
+Cancel a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+
+### cancelAll()
+Cancel all jobs in a job queue. The method returns `Promise<void>`.
+
+## Example Application
+
+We have an example application in
 
 * React: [./examples/video-upload-react/src/App.js](/examples/video-upload-react).
