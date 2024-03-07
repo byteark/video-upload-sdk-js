@@ -68,6 +68,7 @@ export class VideoUploadManager {
     this.createUploader = createUploader || createTusUploader;
     this.jobQueue = new Array<UploadJob>();
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
+    this.started = false;
     this.maximumConcurrentJobs = options.maximumConcurrentJobs || 3;
   }
 
