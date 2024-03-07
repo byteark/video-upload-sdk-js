@@ -73,6 +73,12 @@ describe('VideoUploadManager UseCase', () => {
 
     // TODO: Recheck this after using a mock API. It should work.
     expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+      status: 'paused',
+    });
+
+    await uploadManager.resumeUploadById('1234');
+
+    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
       status: 'uploading',
     });
   });
