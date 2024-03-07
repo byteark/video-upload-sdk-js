@@ -102,6 +102,10 @@ export class VideoUploadManager {
     this.jobQueue.push(job);
   }
 
+  getJobQueue(): UploadJob[] {
+    return this.jobQueue;
+  }
+
   /**
    * Get existing job by upload id.
    *
@@ -110,6 +114,14 @@ export class VideoUploadManager {
    */
   getJobByUploadId(uploadId: string | number): UploadJob {
     return this.jobsByUploadId.get(uploadId);
+  }
+
+  getIsUploadStarted(): boolean {
+    return this.started;
+  }
+
+  getIsAllUploadCancelled(): boolean {
+    return this.jobQueue.every((queue) => queue.status === 'cancelled');
   }
 
   /**
@@ -206,10 +218,49 @@ export class VideoUploadManager {
     }
   }
 
-  async cancelUploadById(uploadId: UploadId): Promise<UploadJob> {
-    const uploader = this.activeUploaderList.get(uploadId);
+  async cancelUploadById(uploadId: UploadId, shouldUploadNextJob = true): Promise<UploadJob> {
+    let uploader = this.activeUploaderList.get(uploadId);
+
+    if (!uploader) {
+      uploader = this.pausedUploaderList.get(uploadId);
+    }
+
+    if (!uploader) {
+      throw new Error(`A video with the uploader ID ${uploadId} is not found.`);
+    }
+
     this.activeUploaderList.delete(uploadId);
-    this.uploadNextJob();
+
+    if (shouldUploadNextJob) {
+      this.uploadNextJob();
+    }
+
     return uploader.abort(true);
+  }
+
+  async cancelAll(): Promise<void> {
+    const pausedUploadIds = Array.from(this.pausedUploaderList.keys());
+    const activeUploadIds = Array.from(this.activeUploaderList.keys());
+
+    const cancelledUploadsPromises = [
+      ...pausedUploadIds.map((uploadId) => (
+        this.cancelUploadById(uploadId, false)
+      )),
+      ...activeUploadIds.map((uploadId) => (
+        this.cancelUploadById(uploadId, false)
+      )),
+    ];
+
+    await Promise.all(cancelledUploadsPromises);
+
+    this.pausedUploaderList.clear();
+    this.activeUploaderList.clear();
+
+    this.jobQueue = this.jobQueue.map((queue) => ({
+      ...queue,
+      status: 'cancelled',
+    }));
+
+    this.started = false;
   }
 }

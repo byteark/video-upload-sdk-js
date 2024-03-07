@@ -64,9 +64,8 @@ export class TusUploader implements UploaderInterface {
   }
 
   async pause(): Promise<UploadJob> {
-    return new Promise<UploadJob>((resolve) => {
-      this.currentUploader.abort(false);
-      resolve(this.job);
+    return new Promise<UploadJob>(() => {
+      return this.abort(false);
     });
   }
 
