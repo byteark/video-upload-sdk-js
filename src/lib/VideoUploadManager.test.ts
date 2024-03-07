@@ -1,10 +1,12 @@
 import { VideoUploadManager } from './VideoUploadManager';
 
 describe('VideoUploadManager', () => {
-  test('requires an \'options\' parameter', () => {
+  test("requires an 'options' parameter", () => {
     // @ts-expect-error An argument for options was not provided.
-    expect(() => new VideoUploadManager()).toThrowError('VideoUploadManager requires an \'options\' parameter.');
-  })
+    expect(() => new VideoUploadManager()).toThrow(
+      "VideoUploadManager requires an 'options' parameter.",
+    );
+  });
 });
 
 describe('VideoUploadManager UseCase', () => {
@@ -16,57 +18,47 @@ describe('VideoUploadManager UseCase', () => {
       serviceName: 'byteark.stream',
       serviceEndpoint: 'https://stream.byteark.com',
     });
-
-    uploadManager.start = jest.fn();
-    uploadManager.cancelUploadById = jest.fn();
   });
 
-  test('can add an upload job', () => {
-    uploadManager.addUploadJob = jest.fn();
-    uploadManager.addUploadJob('1234', fakeVideoFile);
-    expect(uploadManager.addUploadJob).toHaveBeenCalledWith('1234', fakeVideoFile);
-  })
-
-  test('can return a job queue', () => {
-    expect(uploadManager.getJobQueue()).toStrictEqual([]);
-
+  test('can add an upload job to jobQueue', () => {
     uploadManager.addUploadJob('1234', fakeVideoFile);
     expect(uploadManager.getJobQueue()).toStrictEqual([
       {
-        "file": fakeVideoFile,
-        "name": "filename",
-        "status": "pending",
-        "uploadId": "1234"
-      }
+        file: fakeVideoFile,
+        name: 'filename',
+        status: 'pending',
+        uploadId: '1234',
+      },
     ]);
   });
 
-  test('can start uploading from a job queue', () => {
+  test('can start uploading from a job queue', async () => {
     uploadManager.addUploadJob('1234', fakeVideoFile);
-    uploadManager.start();
-    expect(uploadManager.start).toHaveBeenCalled();
-    // TODO: uploadManager.getIsUploadStarted() still returns false. Likely caused by 'uploadManager.start = jest.fn()' line.
+    await uploadManager.start();
+
+    // TODO: Recheck these after using a mock API. They should work.
     expect(uploadManager.getIsUploadStarted()).toBe(true);
+    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+      status: 'uploading',
+    });
   });
 
-  test('can cancel uploading by uploadId', () => {
+  test('can cancel uploading by uploadId', async () => {
     uploadManager.addUploadJob('1234', fakeVideoFile);
-    uploadManager.start();
-    expect(uploadManager.start).toHaveBeenCalled();
+    await uploadManager.start();
+    await uploadManager.cancelUploadById('1234');
 
-    uploadManager.cancelUploadById('1234');
-    expect(uploadManager.cancelUploadById).toHaveBeenCalledWith('1234');
-    // TODO: The job status is still 'pending'. Likely caused by 'uploadManager.cancelUploadById = jest.fn()' line.
-    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({ status: 'cancelled' });
+    // TODO: Recheck this after using a mock API. It should work.
+    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+      status: 'cancelled',
+    });
   });
 
   test('can cancel all jobs', async () => {
     uploadManager.addUploadJob('1234', fakeVideoFile);
     uploadManager.addUploadJob('5678', fakeVideoFile);
 
-    uploadManager.start();
-    expect(uploadManager.start).toHaveBeenCalled();
-
+    await uploadManager.start();
     await uploadManager.cancelAll();
     expect(uploadManager.getIsAllUploadCancelled()).toBe(true);
   });
@@ -75,22 +67,30 @@ describe('VideoUploadManager UseCase', () => {
 describe('VideoUploadManager.options', () => {
   test('has a correct type', () => {
     // @ts-expect-error An argument for options was not provided.
-    expect(() => new VideoUploadManager('hello!')).toThrowError('An \'options\' parameter needs to be an object.');
+    expect(() => new VideoUploadManager('hello!')).toThrow(
+      "An 'options' parameter needs to be an object.",
+    );
 
     // @ts-expect-error Missing serviceName and serviceEndpoint
     expect(() => new VideoUploadManager({
       maximumConcurrentJobs: 10,
-    })).toThrowError('serviceName and serviceEndpoint are required in the option parameter.');
+    })).toThrow(
+      'serviceName and serviceEndpoint are required in the option parameter.'
+    );
 
     // @ts-expect-error Missing serviceEndpoint
     expect(() => new VideoUploadManager({
       serviceName: 'byteark.stream',
-    })).toThrowError('serviceEndpoint is required in the option parameter.');
+    })).toThrow(
+      'serviceEndpoint is required in the option parameter.'
+    );
 
     // @ts-expect-error Missing serviceName
     expect(() => new VideoUploadManager({
       serviceEndpoint: 'https://stream.byteark.com',
-    })).toThrowError('serviceName is required in the option parameter.');
+    })).toThrow(
+      'serviceName is required in the option parameter.'
+    );
 
     expect(() => new VideoUploadManager({
       serviceName: 'byteark.stream',
