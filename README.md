@@ -61,12 +61,12 @@ main();
 
 ## Getters
 
-| Name                    | Returns                | Description                                       |
-|-------------------------|------------------------|---------------------------------------------------|
-| getJobQueue             | UploadJob[]            | Returns a job queue array.                        |
-| getJobByUploadId        | UploadJob \| undefined | Returns a job that matches the provided uploadId. |
-| getIsUploadStarted      | boolean                | Returns true if any upload job has started.       |
-| getIsAllUploadCancelled | boolean                | Returns true if all job queue has been cancelled. |
+| Name                    | Returns                | Description                                              |
+|-------------------------|------------------------|----------------------------------------------------------|
+| getJobQueue             | UploadJob[]            | Returns a job queue array.                               |
+| getJobByUploadId        | UploadJob \| undefined | Returns a job that matches the provided uploadId.        |
+| getIsUploadStarted      | boolean                | Returns true if any upload job has started.              |
+| getIsAllUploadCancelled | boolean                | Returns true if all jobs in a queue have been cancelled. |
 
 ## Methods
 
