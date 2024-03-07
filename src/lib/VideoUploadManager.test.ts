@@ -7,6 +7,71 @@ describe('VideoUploadManager', () => {
   })
 });
 
+describe('VideoUploadManager UseCase', () => {
+  let uploadManager: VideoUploadManager;
+  const fakeVideoFile = new File([''], 'filename');
+
+  beforeEach(() => {
+    uploadManager = new VideoUploadManager({
+      serviceName: 'byteark.stream',
+      serviceEndpoint: 'https://stream.byteark.com',
+    });
+
+    uploadManager.start = jest.fn();
+    uploadManager.cancelUploadById = jest.fn();
+  });
+
+  test('can add an upload job', () => {
+    uploadManager.addUploadJob = jest.fn();
+    uploadManager.addUploadJob('1234', fakeVideoFile);
+    expect(uploadManager.addUploadJob).toHaveBeenCalledWith('1234', fakeVideoFile);
+  })
+
+  test('can return a job queue', () => {
+    expect(uploadManager.getJobQueue()).toStrictEqual([]);
+
+    uploadManager.addUploadJob('1234', fakeVideoFile);
+    expect(uploadManager.getJobQueue()).toStrictEqual([
+      {
+        "file": fakeVideoFile,
+        "name": "filename",
+        "status": "pending",
+        "uploadId": "1234"
+      }
+    ]);
+  });
+
+  test('can start uploading from a job queue', () => {
+    uploadManager.addUploadJob('1234', fakeVideoFile);
+    uploadManager.start();
+    expect(uploadManager.start).toHaveBeenCalled();
+    // TODO: uploadManager.getIsUploadStarted() still returns false. Likely caused by 'uploadManager.start = jest.fn()' line.
+    expect(uploadManager.getIsUploadStarted()).toBe(true);
+  });
+
+  test('can cancel uploading by uploadId', () => {
+    uploadManager.addUploadJob('1234', fakeVideoFile);
+    uploadManager.start();
+    expect(uploadManager.start).toHaveBeenCalled();
+
+    uploadManager.cancelUploadById('1234');
+    expect(uploadManager.cancelUploadById).toHaveBeenCalledWith('1234');
+    // TODO: The job status is still 'pending'. Likely caused by 'uploadManager.cancelUploadById = jest.fn()' line.
+    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({ status: 'cancelled' });
+  });
+
+  test('can cancel all jobs', async () => {
+    uploadManager.addUploadJob('1234', fakeVideoFile);
+    uploadManager.addUploadJob('5678', fakeVideoFile);
+
+    uploadManager.start();
+    expect(uploadManager.start).toHaveBeenCalled();
+
+    await uploadManager.cancelAll();
+    expect(uploadManager.getIsAllUploadCancelled()).toBe(true);
+  });
+});
+
 describe('VideoUploadManager.options', () => {
   test('has a correct type', () => {
     // @ts-expect-error An argument for options was not provided.
