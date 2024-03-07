@@ -116,8 +116,6 @@ export class VideoUploadManager {
           : this.maximumConcurrentJobs);
         index++
       ) {
-        console.log('in');
-
         this.startUploadJob();
       }
     }
