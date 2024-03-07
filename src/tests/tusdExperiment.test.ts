@@ -1,8 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 
-// import { VideoUploadManager } from '../lib/VideoUploadManager';
-
 const server = setupServer(
   http.post('https://stream.byteark.com/api/upload/v1/tus/videos', () => {
     return new HttpResponse(null, {
@@ -18,25 +16,9 @@ const server = setupServer(
     },
   ),
 );
-// const defaultUploadManagerOptions: any = {
-//   serviceName: 'byteark.stream',
-//   serviceEndpoint: 'https://stream.byteark.com',
-//   authorizationToken: '',
-//   maximumConcurrentJobs: 2,
-//   onUploadProgress: () => {
-//     console.log('Example: onUploadProgress');
-//   },
-//   onUploadCompleted: () => {
-//     console.log('Example: onUploadCompleted');
-//   },
-//   onUploadFailed: () => {
-//     console.log('Example: onUploadFailed');
-//   },
-// };
 
 // let videoUploadManager = null;
 beforeAll(() => {
-  // videoUploadManager = new VideoUploadManager(defaultUploadManagerOptions);
   server.listen();
 });
 
@@ -46,9 +28,6 @@ describe('TUSd Integration Tests', () => {
 
     // Mock video file data
     const videoData = new Uint8Array([0x01, 0x02, 0x03]); // Example video data
-
-    // videoUploadManager.addUploadJob('xxx', videoData);
-    // videoUploadManager.start();
 
     try {
       // Step 1: Initiate upload
