@@ -61,38 +61,41 @@ main();
 
 ## Getters
 
-| Name        | Returns     | Description                                       |
-|-------------|-------------|---------------------------------------------------|
-| getJobQueue | UploadJob[] | An array of job queue.                            |
-| getJobByUploadId  | UploadJob   | A job by the provided uploadId.                   |
-| getIsUploadStarted            | boolean     | Returns true if any upload job has started.       |
-| getIsAllUploadCancelled            | boolean     | Returns true if all job queue has been cancelled. |
+| Name                    | Returns                | Description                                       |
+|-------------------------|------------------------|---------------------------------------------------|
+| getJobQueue             | UploadJob[]            | Returns a job queue array.                        |
+| getJobByUploadId        | UploadJob \| undefined | Returns a job that matches the provided uploadId. |
+| getIsUploadStarted      | boolean                | Returns true if any upload job has started.       |
+| getIsAllUploadCancelled | boolean                | Returns true if all job queue has been cancelled. |
 
 ## Methods
 
-### addUploadJob()
-Add an upload job to a job queue. The method returns `void`.
+### addUploadJob(): `void`
+Add an upload job to a job queue.
 
-### setOptions(newOptions: UploadManagerOptions)
-Add an upload job to a job queue. The method returns `void`.
+### setOptions(newOptions: UploadManagerOptions): `void`
+Set a new options to VideoUploadManager. This operation cannot be done when any upload job has already started.
 
-### start()
-Start uploading from a job queue. The method returns `Promise<void>`.
+### start(): `Promise<void>`
+Start uploading from a job queue.
 
-### pauseUploadById(uploadId: UploadId)
-Pause a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+### pauseUploadById(uploadId: UploadId): `Promise<UploadJob>`
+Pause a job by the provided uploadId.
 
-### resumeUploadById(uploadId: UploadId)
-Pause a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+This method throws an error when a job with the provided uploadId cannot be found.
 
-### pauseUploadById(uploadId: UploadId)
-Resume a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+### resumeUploadById(uploadId: UploadId): `Promise<UploadJob>`
+Resume a job by the provided uploadId.
 
-### cancelUploadById(uploadId: UploadId)
-Cancel a job by the provided uploadId. This method throws an error when a job with the provided uploadId cannot be found, otherwise returns `Promise<UploadJob>`.
+This method throws an error when a job with the provided uploadId cannot be found.
 
-### cancelAll()
-Cancel all jobs in a job queue. The method returns `Promise<void>`.
+### cancelUploadById(uploadId: UploadId): `Promise<UploadJob>`
+Cancel a job by the provided uploadId.
+
+This method throws an error when a job with the provided uploadId cannot be found.
+
+### cancelAll(): `Promise<void>`
+Cancel all jobs in a job queue.
 
 ## Example Application
 
