@@ -95,7 +95,7 @@ export class VideoUploadManager {
    * @param uploadId Upload ID. It'll be "video key" for ByteArk Stream, or "video source id" for ByteArk Qoder.
    * @returns Detail of the upload job
    */
-  getJobByUploadId(uploadId: string | number): UploadJob {
+  getJobByUploadId(uploadId: string | number): UploadJob | undefined {
     return this.jobsByUploadId.get(uploadId);
   }
 
