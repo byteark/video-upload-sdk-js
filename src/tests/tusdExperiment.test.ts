@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
+import { setupWorker } from 'msw/browser';
 
 import { VideoUploadManager } from '../lib/VideoUploadManager';
 
@@ -23,7 +23,7 @@ const handlers = [
   ),
 ];
 
-const server = setupServer(...handlers);
+const server = setupWorker(...handlers);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const defaultUploadManagerOptions: any = {
   serviceName: 'byteark.stream',
@@ -42,10 +42,10 @@ const defaultUploadManagerOptions: any = {
 };
 
 beforeAll(() => {
-  server.listen();
+  server.start();
 });
 afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+afterAll(() => server.stop());
 
 function readMP4File() {
   return new Promise((resolve, reject) => {

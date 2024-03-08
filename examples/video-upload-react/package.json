@@ -13,6 +13,12 @@
     "tus-js-client": "^2.3.1",
     "web-vitals": "^2.1.4"
   },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "msw": "^2.2.2",
+    "undici": "^6.7.0"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

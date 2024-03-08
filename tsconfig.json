@@ -47,7 +47,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "src/tests/tusdExperiment.test.ts"  ],
   "exclude": [
     "node_modules/**"
   ],
