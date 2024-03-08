@@ -1,6 +1,6 @@
 {
   "name": "@byteark/video-upload-sdk",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Uploading video files directly from user's browser to ByteArk Stream and Qoder",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
@@ -19,6 +19,7 @@
     "test:lint": "eslint src --ext .ts",
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:spelling": "cspell \"{README.md,.github/*.md,src/**/*.ts}\"",
+    "publish": "run-s test build publish",
     "test:unit": "jest",
     "check-cli": "run-s test diff-integration-tests check-integration-tests",
     "check-integration-tests": "run-s check-integration-test:*",
@@ -56,7 +57,6 @@
     "ava": "^6.1.2",
     "codecov": "^3.8.3",
     "cspell": "^4.2.8",
-    "cypress": "^13.6.6",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.10.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
