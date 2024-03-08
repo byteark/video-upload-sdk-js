@@ -48,9 +48,29 @@ export class VideoUploadManager {
     private options: UploadManagerOptions,
     createUploader?: CreateUploader,
   ) {
+    if (options === undefined || options === null) {
+      throw new Error("VideoUploadManager requires an 'options' parameter.");
+    }
+
+    if (typeof options !== 'object') {
+      throw new Error("An 'options' parameter needs to be an object.");
+    }
+
+    const requiredOptionFields = ['serviceName', 'serviceEndpoint'];
+    const missingRequiredOptions = requiredOptionFields.filter(
+      (option) => !options[option],
+    );
+
+    if (missingRequiredOptions.length > 0) {
+      throw new Error(
+        `${missingRequiredOptions.join(' and ')} ${missingRequiredOptions.length > 1 ? 'are' : 'is'} required in the option parameter.`,
+      );
+    }
+
     this.createUploader = createUploader || createTusUploader;
     this.jobQueue = new Array<UploadJob>();
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
+    this.started = false;
     this.maximumConcurrentJobs = options.maximumConcurrentJobs || 3;
   }
 
@@ -60,7 +80,7 @@ export class VideoUploadManager {
    */
   setOptions(newOptions: UploadManagerOptions) {
     if (this.started) {
-      throw new Error('Cannot set new options when upload manager is running.');
+      throw new Error('Cannot set new options after uploading has started.');
     }
 
     this.options = newOptions;
@@ -201,7 +221,10 @@ export class VideoUploadManager {
     }
   }
 
-  async cancelUploadById(uploadId: UploadId, shouldUploadNextJob = true): Promise<UploadJob> {
+  async cancelUploadById(
+    uploadId: UploadId,
+    shouldUploadNextJob = true,
+  ): Promise<UploadJob> {
     let uploader = this.activeUploaderList.get(uploadId);
 
     if (!uploader) {
@@ -226,12 +249,12 @@ export class VideoUploadManager {
     const activeUploadIds = Array.from(this.activeUploaderList.keys());
 
     const cancelledUploadsPromises = [
-      ...pausedUploadIds.map((uploadId) => (
-        this.cancelUploadById(uploadId, false)
-      )),
-      ...activeUploadIds.map((uploadId) => (
-        this.cancelUploadById(uploadId, false)
-      )),
+      ...pausedUploadIds.map((uploadId) =>
+        this.cancelUploadById(uploadId, false),
+      ),
+      ...activeUploadIds.map((uploadId) =>
+        this.cancelUploadById(uploadId, false),
+      ),
     ];
 
     await Promise.all(cancelledUploadsPromises);
