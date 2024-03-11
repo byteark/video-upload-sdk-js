@@ -1,51 +1,44 @@
 import fs from 'fs';
 
-import { http, HttpResponse } from 'msw';
-import { setupWorker } from 'msw/browser';
+import nock from 'nock';
+// import { setupWorker } from 'msw/browser';
 
 import { VideoUploadManager } from '../lib/VideoUploadManager';
 
-const handlers = [
-  http.post('https://stream.byteark.com/api/upload/v1/tus/videos', () => {
-    console.log('post video intercept');
-    return new HttpResponse(null, {
-      status: 201,
-    });
-  }),
-  http.patch(
-    'https://stream.byteark.com/api/upload/v1/tus/videos/:videoId',
-    () => {
-      console.log('patch video intercept');
-      return new HttpResponse(null, {
-        status: 204,
-      });
-    },
-  ),
-];
+nock('https://stream.byteark.com')
+  .persist()
+  .defaultReplyHeaders({
+    location:
+      'https://stream.byteark.com/api/upload/v1/tus/videos/e719bc4019689f564422ca88469bbe1a+2~ZhUXad_XyZh_jF7ylszVhrhLQdUM303',
+  })
+  .post('/api/upload/v1/tus/videos')
+  .reply(201, { 'Upload-Length': 1024 });
+nock('https://stream.byteark.com')
+  .persist()
+  .patch('/api/upload/v1/tus/videos/:videoId')
+  .reply(204, { 'Upload-Offset': 512 });
+nock('https://stream.byteark.com')
+  .persist()
+  .patch('/api/upload/v1/tus/videos/:videoId')
+  .reply(204, null);
 
-const server = setupWorker(...handlers);
+// const server = setupWorker(...handlers);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const defaultUploadManagerOptions: any = {
   serviceName: 'byteark.stream',
   serviceEndpoint: 'https://stream.byteark.com',
   authorizationToken: '',
   maximumConcurrentJobs: 2,
-  onUploadProgress: () => {
-    console.log('Example: onUploadProgress');
-  },
-  onUploadCompleted: () => {
-    console.log('Example: onUploadCompleted');
-  },
-  onUploadFailed: () => {
-    console.log('Example: onUploadFailed');
-  },
+  // onUploadProgress: () => {
+  //   console.log('Example: onUploadProgress');
+  // },
+  // onUploadCompleted: () => {
+  //   console.log('Example: onUploadCompleted');
+  // },
+  // onUploadFailed: () => {
+  //   console.log('Example: onUploadFailed');
+  // },
 };
-
-beforeAll(() => {
-  server.start();
-});
-afterEach(() => server.resetHandlers());
-afterAll(() => server.stop());
 
 function readMP4File() {
   return new Promise((resolve, reject) => {
