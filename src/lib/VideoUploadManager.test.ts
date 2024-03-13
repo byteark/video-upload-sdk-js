@@ -44,9 +44,6 @@ describe('VideoUploadManager UseCase', () => {
     uploadManager = new VideoUploadManager({
       serviceName: 'byteark.stream',
       serviceEndpoint: 'https://stream.byteark.com',
-      onUploadCompleted(job) {
-        console.log(job)
-      },
     });
   });
 
