@@ -84,6 +84,7 @@ export class VideoUploadManager {
     }
 
     this.options = newOptions;
+    this.maximumConcurrentJobs = newOptions.maximumConcurrentJobs || 3;
   }
 
   /**
@@ -170,7 +171,7 @@ export class VideoUploadManager {
     this.uploadNextJob();
   }
 
-  async pauseUploadById(uploadId: UploadId): Promise<UploadJob> {
+  pauseUploadById(uploadId: UploadId): Promise<UploadJob> {
     const jobData = this.jobsByUploadId.get(uploadId);
     const uploader = this.activeUploaderList.get(uploadId);
 
@@ -190,7 +191,7 @@ export class VideoUploadManager {
     return uploader.pause();
   }
 
-  async resumeUploadById(uploadId: UploadId): Promise<UploadJob> {
+  resumeUploadById(uploadId: UploadId): Promise<UploadJob> {
     const jobData = this.jobsByUploadId.get(uploadId);
     const uploader = this.pausedUploaderList.get(uploadId);
 
@@ -221,21 +222,27 @@ export class VideoUploadManager {
     }
   }
 
-  async cancelUploadById(
+  cancelUploadById(
     uploadId: UploadId,
     shouldUploadNextJob = true,
   ): Promise<UploadJob> {
+    let uploaderType = 'active';
     let uploader = this.activeUploaderList.get(uploadId);
 
     if (!uploader) {
       uploader = this.pausedUploaderList.get(uploadId);
+      uploaderType = 'pause';
     }
 
     if (!uploader) {
       throw new Error(`A video with the uploader ID ${uploadId} is not found.`);
     }
 
-    this.activeUploaderList.delete(uploadId);
+    if (uploaderType === 'pause') {
+      this.pausedUploaderList.delete(uploadId)
+    } else {
+      this.activeUploaderList.delete(uploadId);
+    }
 
     if (shouldUploadNextJob) {
       this.uploadNextJob();
