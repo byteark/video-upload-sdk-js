@@ -165,7 +165,6 @@ function App() {
 
   const onClickAddVideoButton = async (data) => {
     console.log('Example: onClickAddVideoButton');
-    console.log(data.file);
     if (uploadManagerOption?.serviceName === 'byteark.stream') {
       let videoData = await createStreamVideo(data);
       console.log('Example: create stream video');
