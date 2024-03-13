@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { VideoUploadManager } from '@byteark/video-upload-sdk';
 import { UploadForm } from './UploadForm';
 
-const disabledClass = 'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed';
+const disabledClass =
+  'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed';
 
 function JobActionButton({ bgColor = 'blue', onClick, status, text }) {
   const getDisabledCondition = () => {
@@ -164,6 +165,7 @@ function App() {
 
   const onClickAddVideoButton = async (data) => {
     console.log('Example: onClickAddVideoButton');
+    console.log(data.file);
     if (uploadManagerOption?.serviceName === 'byteark.stream') {
       let videoData = await createStreamVideo(data);
       console.log('Example: create stream video');
@@ -193,7 +195,7 @@ function App() {
     async (uploadId) => {
       console.log('Example: onClickPauseButton');
 
-      uploadManager.pauseUploadById(uploadId);
+      console.log(uploadManager.pauseUploadById(uploadId));
       setJobs([...uploadManager.getJobQueue()]);
     },
     [uploadManager],
@@ -209,15 +211,12 @@ function App() {
     [uploadManager],
   );
 
-  const onClickCancelAllButton = useCallback(
-    async () => {
-      console.log('Example: onClickCancelAllButton');
+  const onClickCancelAllButton = useCallback(async () => {
+    console.log('Example: onClickCancelAllButton');
 
-      await uploadManager.cancelAll();
-      setJobs([...uploadManager.getJobQueue()]);
-    },
-    [uploadManager],
-  );
+    await uploadManager.cancelAll();
+    setJobs([...uploadManager.getJobQueue()]);
+  }, [uploadManager]);
 
   const MemoUploadForm = React.memo(() => (
     <UploadForm onSubmit={onClickAddVideoButton} />
@@ -284,9 +283,7 @@ function App() {
                     onClickResumeButton={() =>
                       onClickResumeButton(job.uploadId)
                     }
-                    onClickPauseButton={() =>
-                      onClickPauseButton(job.uploadId)
-                  }
+                    onClickPauseButton={() => onClickPauseButton(job.uploadId)}
                   />
                 ))}
               </ul>
@@ -295,7 +292,9 @@ function App() {
                   className={`bg-blue-500 text-white font-bold py-2 px-4 rounded ${disabledClass}`}
                   type="button"
                   onClick={onClickStartButton}
-                  disabled={jobs.length === 0 || uploadManager.getIsUploadStarted()}
+                  disabled={
+                    jobs.length === 0 || uploadManager.getIsUploadStarted()
+                  }
                 >
                   Start
                 </button>
@@ -303,8 +302,11 @@ function App() {
                   className={`bg-red-500 text-white font-bold py-2 px-4 rounded ml-2 ${disabledClass}`}
                   type="button"
                   onClick={onClickCancelAllButton}
-                  disabled={jobs.length === 0 || !uploadManager.getIsUploadStarted()
-                    || uploadManager.getIsAllUploadCancelled()}
+                  disabled={
+                    jobs.length === 0 ||
+                    !uploadManager.getIsUploadStarted() ||
+                    uploadManager.getIsAllUploadCancelled()
+                  }
                 >
                   Cancel All
                 </button>
