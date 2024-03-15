@@ -83,6 +83,8 @@ function App() {
     serviceEndpoint: 'https://stream.byteark.com',
     authorizationToken: '',
     maximumConcurrentJobs: 2,
+    formId: '',
+    formSecret: '',
     onUploadProgress: () => {
       console.log('Example: onUploadProgress');
       setJobs([...uploadManager.getJobQueue()]);
@@ -135,8 +137,9 @@ function App() {
       const options = {
         ...defaultUploadManagerOptions,
         serviceName: event.target.serviceName.value,
-        serviceEndpoint: event.target.serviceEndpoint.value,
-        authorizationToken: event.target.authorizationToken.value,
+        serviceEndpoint:
+          event.target.serviceEndpoint.value || 'https://stream.byteark.com',
+        projectKey: event.target.projectKey.value,
       };
       setUploadManagerOptions(options);
       uploadManager.setOptions(options);
@@ -145,33 +148,14 @@ function App() {
     [uploadManager],
   );
 
-  const createStreamVideo = async (data) => {
-    const videoResponses = await fetch(
-      'https://stream.byteark.com/api/v1/videos',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${uploadManagerOption?.authorizationToken}`,
-        },
-        body: JSON.stringify({
-          projectKey: data.projectKey,
-          videos: [{ title: data?.file?.name }],
-        }),
-      },
-    );
-    return (await videoResponses.json())[0];
-  };
-
   const onClickAddVideoButton = async (data) => {
     console.log('Example: onClickAddVideoButton');
     if (uploadManagerOption?.serviceName === 'byteark.stream') {
-      let videoData = await createStreamVideo(data);
-      console.log('Example: create stream video');
-      uploadManager.addUploadJob(videoData?.key, data.file);
+      await uploadManager.addUploadJobs([data.file]);
     } else {
       uploadManager.addUploadJob(data.uploadId, data.file);
     }
+    console.log(uploadManager.getJobQueue());
     setJobs([...uploadManager.getJobQueue()]);
   };
 
@@ -248,12 +232,30 @@ function App() {
                   />
                 </div>
                 <div className="mb-4" style={{ width: '250px' }}>
-                  <div>Authorization token</div>
+                  <div>Form Id</div>
                   <input
                     className="border p-1"
-                    placeholder="authorizationToken"
-                    name="authorizationToken"
-                    defaultValue={uploadManagerOption.authorizationToken}
+                    placeholder="serviceEndpoint"
+                    name="serviceEndpoint"
+                    defaultValue={uploadManagerOption.formId}
+                  />
+                </div>
+                <div className="mb-4" style={{ width: '250px' }}>
+                  <div>Form Secret</div>
+                  <input
+                    className="border p-1"
+                    placeholder="serviceEndpoint"
+                    name="serviceEndpoint"
+                    defaultValue={uploadManagerOption.formSecret}
+                  />
+                </div>
+                <div className="mb-4" style={{ width: '250px' }}>
+                  <div>Project Key</div>
+                  <input
+                    className="border p-1"
+                    placeholder="projectKey"
+                    name="projectKey"
+                    defaultValue={uploadManagerOption.projectKey}
                   />
                 </div>
               </div>

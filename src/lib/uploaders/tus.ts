@@ -18,6 +18,7 @@ export class TusUploader implements UploaderInterface {
   constructor(
     private job: UploadJob,
     private options: UploadManagerOptions,
+    private authorizationToken: string,
   ) {}
 
   async start(): Promise<UploadJob> {
@@ -30,7 +31,7 @@ export class TusUploader implements UploaderInterface {
         metadata: this.createMetadata(this.job),
         retryDelays: this.defaultRetryDelays,
         onBeforeRequest: (req) => {
-          if (this.options.authorizationToken) {
+          if (this.authorizationToken) {
             const xhr = req.getUnderlyingObject();
             xhr.withCredentials = true;
           }
@@ -100,14 +101,14 @@ export class TusUploader implements UploaderInterface {
   }
 
   createHeaders(): KeyValuePair {
-    if (!this.options.authorizationToken && !this.options.headers) {
+    if (!this.authorizationToken && !this.options.headers) {
       return {};
     }
 
-    if (this.options.authorizationToken) {
+    if (this.authorizationToken) {
       return {
         ...(this.options.headers || {}),
-        Authorization: `Bearer ${this.options.authorizationToken}`,
+        Authorization: `Bearer ${this.authorizationToken}`,
       };
     }
 
@@ -211,6 +212,7 @@ export class TusUploader implements UploaderInterface {
 export function createTusUploader(
   job: UploadJob,
   options: UploadManagerOptions,
+  authorizationToken: string
 ): TusUploader {
-  return new TusUploader(job, options);
+  return new TusUploader(job, options, authorizationToken);
 }

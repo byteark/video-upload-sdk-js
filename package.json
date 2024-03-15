@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@bitauth/libauth": "^2.1.0",
+    "jose": "^5.2.3",
     "tus-js-client": "^4.0.1"
   },
   "devDependencies": {

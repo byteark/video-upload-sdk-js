@@ -1,10 +1,13 @@
+import { getStreamAccessToken, streamVideoObjectsCreator } from './services';
 import {
   CreateUploader,
   UploaderInterface,
   UploadJob,
   UploadManagerOptions,
+  videoObjectsCreatorParams,
 } from './types';
 import { createTusUploader } from './uploaders/tus';
+import { signJWTToken, transformVideoObjectsToJobList } from './utils';
 // import { delay } from './utils';
 
 type UploadId = string | number;
@@ -21,7 +24,7 @@ type UploadId = string | number;
 export class VideoUploadManager {
   public readonly uploadIds: UploadId[];
 
-  private jobQueue: UploadJob[];
+  private jobQueue: UploadJob[] = [];
 
   private jobsByUploadId: Map<UploadId, UploadJob>;
 
@@ -35,9 +38,15 @@ export class VideoUploadManager {
 
   private createUploader: CreateUploader;
 
+  private videoObjectsCreator: (
+    payload: videoObjectsCreatorParams,
+  ) => Promise<string[]>;
+
   private started: boolean;
 
   private maximumConcurrentJobs: number;
+
+  private authorizationToken: string;
 
   /**
    *
@@ -68,10 +77,32 @@ export class VideoUploadManager {
     }
 
     this.createUploader = createUploader || createTusUploader;
+    // TODO: Change to QoderVideoObjectsCreator
+    this.videoObjectsCreator =
+      this.options.serviceName === 'byteark.stream'
+        ? streamVideoObjectsCreator
+        : streamVideoObjectsCreator;
     this.jobQueue = new Array<UploadJob>();
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
     this.started = false;
     this.maximumConcurrentJobs = options.maximumConcurrentJobs || 3;
+    this.initializeData(options, 2);
+  }
+
+  async initializeData(
+    options: UploadManagerOptions,
+    validPeriodInHour: number,
+  ) {
+    const jwtToken = await signJWTToken(options.formSecret, validPeriodInHour);
+
+    if (jwtToken) {
+      this.authorizationToken = await getStreamAccessToken(
+        options.formId,
+        jwtToken,
+      );
+    } else {
+      this.authorizationToken = jwtToken;
+    }
   }
 
   /**
@@ -85,6 +116,24 @@ export class VideoUploadManager {
 
     this.options = newOptions;
     this.maximumConcurrentJobs = newOptions.maximumConcurrentJobs || 3;
+  }
+
+  async addUploadJobs(files: File[]): Promise<void> {
+    const videoKeys = await this.videoObjectsCreator({
+      files,
+      projectKey: this.options.projectKey,
+      authorizationToken: this.authorizationToken,
+    });
+
+    if (!videoKeys?.length) {
+      throw Error('Cannot find any video id');
+    }
+    const jobList = transformVideoObjectsToJobList(files, videoKeys);
+
+    jobList.forEach((job) => {
+      this.jobsByUploadId.set(job.uploadId, job);
+    });
+    this.jobQueue = [...this.jobQueue, ...jobList];
   }
 
   /**
@@ -161,7 +210,11 @@ export class VideoUploadManager {
     this.currentJobIndex += 1;
     const currentJob = this.jobQueue[this.currentJobIndex];
 
-    this.currentUploader = this.createUploader(currentJob, this.options);
+    this.currentUploader = this.createUploader(
+      currentJob,
+      this.options,
+      this.authorizationToken,
+    );
 
     this.activeUploaderList.set(currentJob.uploadId, this.currentUploader);
 
@@ -239,7 +292,7 @@ export class VideoUploadManager {
     }
 
     if (uploaderType === 'pause') {
-      this.pausedUploaderList.delete(uploadId)
+      this.pausedUploaderList.delete(uploadId);
     } else {
       this.activeUploaderList.delete(uploadId);
     }

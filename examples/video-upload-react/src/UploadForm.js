@@ -13,11 +13,8 @@ export class UploadForm extends React.Component {
     event.preventDefault();
     if (this.props.onSubmit) {
       this.props.onSubmit({
-        uploadId: this.videoSourceIdInput.current.value,
         file: this.fileInput.current.files[0],
-        projectKey: this.projectKey.current.value,
       });
-      this.videoSourceIdInput.current.value = '';
       this.fileInput.current.value = null;
     }
   }
@@ -25,22 +22,14 @@ export class UploadForm extends React.Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block">Video Source ID</label>
           <input
             className="border p-1"
             type="text"
             ref={this.videoSourceIdInput}
           />
-        </div>
-        <div className="mb-4" style={{ width: '250px' }}>
-          <label className="block">ByteArk Stream Project Key</label>
-          <input
-            className="border p-1"
-            placeholder="project key"
-            ref={this.projectKey}
-          />
-        </div>
+        </div> */}
         <div className="mb-4">
           <label className="block">File</label>
           <input type="file" ref={this.fileInput} />

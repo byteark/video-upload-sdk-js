@@ -38,6 +38,7 @@ export type ServiceName = 'byteark.stream' | 'byteark.qoder' | 'tus';
 export type CreateUploader = (
   job: UploadJob,
   options: UploadManagerOptions,
+  authorizationToken: string
 ) => UploaderInterface;
 
 export interface KeyValuePair {
@@ -54,7 +55,27 @@ export interface UploadManagerCallbacks {
 export interface UploadManagerOptions extends UploadManagerCallbacks {
   serviceName: ServiceName;
   serviceEndpoint: string;
-  authorizationToken?: string;
+  projectKey: string;
+  formId: string;
+  formSecret: string;
   headers?: KeyValuePair;
   maximumConcurrentJobs?: number;
+}
+
+export interface StreamVideoObject {
+  id: string;
+  key: string;
+  project: {
+    key: string
+  },
+  projectId: string;
+  title: string;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface videoObjectsCreatorParams {
+  files: File[],
+  projectKey: string;
+  authorizationToken: string;
 }
