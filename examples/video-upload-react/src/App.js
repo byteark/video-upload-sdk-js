@@ -137,8 +137,9 @@ function App() {
       const options = {
         ...defaultUploadManagerOptions,
         serviceName: event.target.serviceName.value,
-        serviceEndpoint:
-          event.target.serviceEndpoint.value || 'https://stream.byteark.com',
+        serviceEndpoint: event.target.serviceEndpoint.value,
+        formId: event.target.formId.value,
+        formSecret: event.target.formSecret.value,
         projectKey: event.target.projectKey.value,
       };
       setUploadManagerOptions(options);
@@ -235,8 +236,8 @@ function App() {
                   <div>Form Id</div>
                   <input
                     className="border p-1"
-                    placeholder="serviceEndpoint"
-                    name="serviceEndpoint"
+                    placeholder="formId"
+                    name="formId"
                     defaultValue={uploadManagerOption.formId}
                   />
                 </div>
@@ -244,8 +245,8 @@ function App() {
                   <div>Form Secret</div>
                   <input
                     className="border p-1"
-                    placeholder="serviceEndpoint"
-                    name="serviceEndpoint"
+                    placeholder="formSecret"
+                    name="formSecret"
                     defaultValue={uploadManagerOption.formSecret}
                   />
                 </div>

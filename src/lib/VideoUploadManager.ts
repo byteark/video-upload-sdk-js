@@ -86,18 +86,22 @@ export class VideoUploadManager {
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
     this.started = false;
     this.maximumConcurrentJobs = options.maximumConcurrentJobs || 3;
-    this.initializeData(options, 2);
+    this.getAuthorizationToken();
   }
 
-  async initializeData(
-    options: UploadManagerOptions,
-    validPeriodInHour: number,
-  ) {
-    const jwtToken = await signJWTToken(options.formSecret, validPeriodInHour);
+  async getAuthorizationToken(validPeriodInHour?: number) {
+    if (!this.options.formSecret) {
+      return;
+    }
 
-    if (jwtToken) {
+    const jwtToken = await signJWTToken(
+      this.options.formSecret,
+      validPeriodInHour,
+    );
+
+    if (this.options.serviceName === 'byteark.stream') {
       this.authorizationToken = await getStreamAccessToken(
-        options.formId,
+        this.options.formId,
         jwtToken,
       );
     } else {
@@ -116,6 +120,7 @@ export class VideoUploadManager {
 
     this.options = newOptions;
     this.maximumConcurrentJobs = newOptions.maximumConcurrentJobs || 3;
+    this.getAuthorizationToken();
   }
 
   async addUploadJobs(files: File[]): Promise<void> {
