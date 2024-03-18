@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { VideoUploadManager } from '@byteark/video-upload-sdk';
-import { UploadForm } from './UploadForm';
+import { SdkConfigForm } from './components/SdkConfigForm';
+import { UploadForm } from './components/UploadForm';
 
 const disabledClass =
   'disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed';
@@ -209,109 +210,68 @@ function App() {
   return (
     <div className="container mx-auto px-4 py-4">
       <div className="App">
-        <div className="flex flex-row">
+        <h1 className="text-2xl mb-4 font-bold">
+          Video Upload SDK React Example
+        </h1>
+        <div className="flex flex-row gap-8">
           <div className="basis-1/4">
-            <h1 className="mt mb-4 font-bold">Upload manager options</h1>
-            <form onSubmit={onSubmitUploadManagerOptions}>
-              <div className="mb-4">
-                <div className="mb-4" style={{ width: '250px' }}>
-                  <div>Service Name</div>
-                  <input
-                    className="border p-1"
-                    placeholder="serviceName"
-                    name="serviceName"
-                    defaultValue={uploadManagerOption.serviceName}
-                  />
-                </div>
-                <div className="mb-4" style={{ width: '250px' }}>
-                  <div>Service Endpoint</div>
-                  <input
-                    className="border p-1"
-                    placeholder="serviceEndpoint"
-                    name="serviceEndpoint"
-                    defaultValue={uploadManagerOption.serviceEndpoint}
-                  />
-                </div>
-                <div className="mb-4" style={{ width: '250px' }}>
-                  <div>Form Id</div>
-                  <input
-                    className="border p-1"
-                    placeholder="formId"
-                    name="formId"
-                    defaultValue={uploadManagerOption.formId}
-                  />
-                </div>
-                <div className="mb-4" style={{ width: '250px' }}>
-                  <div>Form Secret</div>
-                  <input
-                    className="border p-1"
-                    placeholder="formSecret"
-                    name="formSecret"
-                    defaultValue={uploadManagerOption.formSecret}
-                  />
-                </div>
-                <div className="mb-4" style={{ width: '250px' }}>
-                  <div>Project Key</div>
-                  <input
-                    className="border p-1"
-                    placeholder="projectKey"
-                    name="projectKey"
-                    defaultValue={uploadManagerOption.projectKey}
-                  />
-                </div>
-              </div>
-              <div className="mb-4">
-                <button
-                  className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
-                  type="submit"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-            <h1 className="mt mb-4 font-bold">Add files to upload</h1>
-            <MemoUploadForm />
+            <h2 className="mb-4 font-bold">1. SDK Configuration</h2>
+            <SdkConfigForm
+              onSubmitUploadManagerOptions={onSubmitUploadManagerOptions}
+              uploadManagerOption={uploadManagerOption}
+            />
           </div>
           <div className="basis-3/4">
-            <div className="bg-white rounded-lg border">
-              <ul className="h-96 divide-y divide-gray-200">
-                {jobs.map((job) => (
-                  <JobItem
-                    {...job}
-                    key={`${job.uploadId}-${job.status}`}
-                    onClickCancelButton={() =>
-                      onClickCancelButton(job.uploadId)
+            <div className="mb-8">
+              <h2 className="mb-4 font-bold">2. Add Files</h2>
+              <MemoUploadForm />
+            </div>
+            <div>
+              <h2 className="mb-4 font-bold">
+                3. Job Queue (Click "Start" button to start uploading)
+              </h2>
+              <div className="bg-white rounded-lg border">
+                <ul className="h-96 divide-y divide-gray-200">
+                  {jobs.map((job) => (
+                    <JobItem
+                      {...job}
+                      key={`${job.uploadId}-${job.status}`}
+                      onClickCancelButton={() =>
+                        onClickCancelButton(job.uploadId)
+                      }
+                      onClickResumeButton={() =>
+                        onClickResumeButton(job.uploadId)
+                      }
+                      onClickPauseButton={() =>
+                        onClickPauseButton(job.uploadId)
+                      }
+                    />
+                  ))}
+                </ul>
+                <div className="p-4 border-t">
+                  <button
+                    className={`bg-blue-500 text-white font-bold py-2 px-4 rounded ${disabledClass}`}
+                    type="button"
+                    onClick={onClickStartButton}
+                    disabled={
+                      jobs.length === 0 || uploadManager.getIsUploadStarted()
                     }
-                    onClickResumeButton={() =>
-                      onClickResumeButton(job.uploadId)
+                  >
+                    Start
+                  </button>
+                  <button
+                    className={`bg-red-500 text-white font-bold py-2 px-4 rounded ml-2 ${disabledClass}`}
+                    type="button"
+                    onClick={onClickCancelAllButton}
+                    disabled={
+                      jobs.length === 0 ||
+                      !uploadManager.getIsUploadStarted() ||
+                      uploadManager.getIsAllUploadCancelled()
                     }
-                    onClickPauseButton={() => onClickPauseButton(job.uploadId)}
-                  />
-                ))}
-              </ul>
-              <div className="p-4 border-t">
-                <button
-                  className={`bg-blue-500 text-white font-bold py-2 px-4 rounded ${disabledClass}`}
-                  type="button"
-                  onClick={onClickStartButton}
-                  disabled={
-                    jobs.length === 0 || uploadManager.getIsUploadStarted()
-                  }
-                >
-                  Start
-                </button>
-                <button
-                  className={`bg-red-500 text-white font-bold py-2 px-4 rounded ml-2 ${disabledClass}`}
-                  type="button"
-                  onClick={onClickCancelAllButton}
-                  disabled={
-                    jobs.length === 0 ||
-                    !uploadManager.getIsUploadStarted() ||
-                    uploadManager.getIsAllUploadCancelled()
-                  }
-                >
-                  Cancel All
-                </button>
+                  >
+                    Cancel All
+                  </button>
+                </div>
               </div>
             </div>
           </div>
