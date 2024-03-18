@@ -9,6 +9,8 @@
     "tus-js-client": "^2.3.2"
   },
   "devDependencies": {
+    "eslint-config-prettier": "^8.10.0",
+    "prettier": "^3.2.5",
     "react-scripts": "5.0.1"
   },
   "scripts": {
@@ -19,8 +21,12 @@
   },
   "eslintConfig": {
     "extends": [
+      "prettier",
       "react-app"
-    ]
+    ],
+    "rules": {
+      "react-hooks/exhaustive-deps": "off"
+    }
   },
   "browserslist": {
     "production": [
