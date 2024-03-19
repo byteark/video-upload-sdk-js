@@ -4,9 +4,9 @@ import {
   UploaderInterface,
   UploadJob,
   UploadManagerOptions,
-  videoObjectsCreatorParams,
+  VideoObjectsCreatorParams,
 } from './types';
-import { createTusUploader } from './uploaders/tus';
+import { createTusUploader } from './uploaders';
 import { signJWTToken, transformVideoObjectsToJobList } from './utils';
 // import { delay } from './utils';
 
@@ -36,10 +36,10 @@ export class VideoUploadManager {
 
   private currentUploader: UploaderInterface;
 
-  private createUploader: CreateUploader;
+  private readonly createUploader: CreateUploader;
 
-  private videoObjectsCreator: (
-    payload: videoObjectsCreatorParams,
+  private readonly videoObjectsCreator: (
+    payload: VideoObjectsCreatorParams,
   ) => Promise<string[]>;
 
   private started: boolean;
@@ -123,9 +123,11 @@ export class VideoUploadManager {
     this.getAuthorizationToken();
   }
 
-  async addUploadJobs(files: File[]): Promise<void> {
+  async addUploadJobs(files: FileList): Promise<void> {
+    const filesArray = Array.from(files);
+
     const videoKeys = await this.videoObjectsCreator({
-      files,
+      files: filesArray,
       projectKey: this.options.projectKey,
       authorizationToken: this.authorizationToken,
     });
@@ -133,7 +135,8 @@ export class VideoUploadManager {
     if (!videoKeys?.length) {
       throw Error('Cannot find any video id');
     }
-    const jobList = transformVideoObjectsToJobList(files, videoKeys);
+
+    const jobList = transformVideoObjectsToJobList(filesArray, videoKeys);
 
     jobList.forEach((job) => {
       this.jobsByUploadId.set(job.uploadId, job);
