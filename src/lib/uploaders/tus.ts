@@ -84,7 +84,6 @@ export class TusUploader implements UploaderInterface {
         return `${this.options.serviceEndpoint}/api/upload/v1/tus/videos`;
       case 'byteark.qoder':
         return null;
-      case 'tus':
       default:
         return this.options.serviceEndpoint;
     }
@@ -94,7 +93,6 @@ export class TusUploader implements UploaderInterface {
     switch (this.options.serviceName) {
       case 'byteark.qoder':
         return `${this.options.serviceEndpoint}/video-source-file/${this.job.uploadId}`;
-      case 'tus':
       default:
         return null;
     }
@@ -212,7 +210,7 @@ export class TusUploader implements UploaderInterface {
 export function createTusUploader(
   job: UploadJob,
   options: UploadManagerOptions,
-  authorizationToken: string
+  authorizationToken: string,
 ): TusUploader {
   return new TusUploader(job, options, authorizationToken);
 }
