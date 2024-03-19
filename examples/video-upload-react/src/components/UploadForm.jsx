@@ -1,48 +1,33 @@
-import React from 'react';
+import { useRef } from 'react';
 
-export class UploadForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.videoSourceIdInput = React.createRef();
-    this.fileInput = React.createRef();
-    this.projectKey = React.createRef();
-  }
+export function UploadForm({ onSubmit }) {
+  const fileInput = useRef();
 
-  handleSubmit(event) {
+  const onChangeInput = (event) => {
     event.preventDefault();
-    if (this.props.onSubmit) {
-      this.props.onSubmit({
-        file: this.fileInput.current.files[0],
-      });
-      this.fileInput.current.value = null;
+    if (!fileInput.current) {
+      return;
     }
-  }
 
-  render() {
-    return (
-      <form onSubmit={this.handleSubmit}>
-        {/* <div className="mb-4">
-          <label className="block">Video Source ID</label>
-          <input
-            className="border p-1"
-            type="text"
-            ref={this.videoSourceIdInput}
-          />
-        </div> */}
-        <div className="mb-4">
-          <label className="block">File</label>
-          <input type="file" ref={this.fileInput} />
-        </div>
-        <div className="mb-4">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="submit"
-          >
-            Add
-          </button>
-        </div>
-      </form>
-    );
-  }
+    onSubmit(fileInput.current.files);
+    fileInput.current.value = null;
+  };
+
+  return (
+    <form>
+      <div className="mb-4">
+        <label htmlFor="file" className="hidden">
+          File
+        </label>
+        <input
+          id="file"
+          type="file"
+          ref={fileInput}
+          onChange={onChangeInput}
+          accept="video/*"
+          multiple
+        />
+      </div>
+    </form>
+  );
 }
