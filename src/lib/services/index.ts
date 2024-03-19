@@ -71,6 +71,10 @@ export async function videoObjectsCreator(
   }
 }
 
+interface AccessTokenResponse {
+  accessToken: string;
+}
+
 export async function getStreamAccessToken(
   formId: string,
   token: string,
@@ -94,7 +98,7 @@ export async function getStreamAccessToken(
       );
     }
 
-    const result = await response.json();
+    const result: AccessTokenResponse = await response.json();
     if (result.accessToken) {
       return result.accessToken;
     }
