@@ -158,11 +158,7 @@ function App() {
       return;
     }
 
-    if (uploadManagerOption.serviceName === 'byteark.stream') {
-      await uploadManager.addUploadJobs(files);
-    } else {
-      // TODO: addUploadJobs for ByteArk Qoder
-    }
+    await uploadManager.addUploadJobs(files);
 
     console.log(uploadManager.getJobQueue());
     setJobs([...uploadManager.getJobQueue()]);
