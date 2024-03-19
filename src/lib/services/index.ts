@@ -18,7 +18,7 @@ export async function videoObjectsCreator(
 
   const requestUrl = isStream
     ? 'https://stream.byteark.com/api/v1/videos'
-    : `https://qoder.byteark.com/apps/${appId}/videos`;
+    : `https://qoder.byteark.com/apps/${appId}/ajax/videos`;
 
   const requestBody = isStream
     ? {
