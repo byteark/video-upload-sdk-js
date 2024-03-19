@@ -1,13 +1,14 @@
-import { StreamVideoObject, videoObjectsCreatorParams } from '../types';
+import { StreamVideoObject, VideoObjectsCreatorParams } from '../types';
 
 export async function streamVideoObjectsCreator({
   files,
   projectKey,
   authorizationToken,
-}: videoObjectsCreatorParams): Promise<string[] | null> {
+}: VideoObjectsCreatorParams): Promise<string[] | null> {
   if (!files.length || !projectKey) {
     return null;
   }
+
   try {
     const response = await fetch(`https://stream.byteark.com/api/v1/videos`, {
       method: 'POST',
