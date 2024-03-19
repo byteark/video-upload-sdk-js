@@ -112,11 +112,13 @@ export function SdkConfigForm(props) {
         </div>
         <div className="mb-4">
           <label className="block" htmlFor="projectKey">
-            Project Key
+            {selectedService === 'stream' ? 'Project Key' : 'Project ID'}
           </label>
           <input
             className="border p-1 w-full"
-            placeholder="projectKey"
+            placeholder={
+              selectedService === 'stream' ? 'projectKey' : 'projectId'
+            }
             id="projectKey"
             name="projectKey"
             defaultValue={uploadManagerOption.projectKey}
