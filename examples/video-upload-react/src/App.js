@@ -150,13 +150,20 @@ function App() {
     [uploadManager],
   );
 
-  const onClickAddVideoButton = async (data) => {
-    console.log('Example: onClickAddVideoButton');
-    if (uploadManagerOption?.serviceName === 'byteark.stream') {
-      await uploadManager.addUploadJobs([data.file]);
-    } else {
-      uploadManager.addUploadJob(data.uploadId, data.file);
+  const onAddVideoFiles = async (files) => {
+    console.log('Example: onAddVideoFiles');
+
+    if (!files.length) {
+      console.log('Example [Info]: A file list is empty.');
+      return;
     }
+
+    if (uploadManagerOption.serviceName === 'byteark.stream') {
+      await uploadManager.addUploadJobs(files);
+    } else {
+      // TODO: addUploadJobs for ByteArk Qoder
+    }
+
     console.log(uploadManager.getJobQueue());
     setJobs([...uploadManager.getJobQueue()]);
   };
@@ -204,7 +211,7 @@ function App() {
   }, [uploadManager]);
 
   const MemoUploadForm = React.memo(() => (
-    <UploadForm onSubmit={onClickAddVideoButton} />
+    <UploadForm onSubmit={onAddVideoFiles} />
   ));
 
   return (
@@ -227,28 +234,37 @@ function App() {
               <MemoUploadForm />
             </div>
             <div>
-              <h2 className="mb-4 font-bold">
-                3. Job Queue (Click "Start" button to start uploading)
-              </h2>
+              <h2 className="mb-4 font-bold">3. Job Queue</h2>
               <div className="bg-white rounded-lg border">
-                <ul className="h-96 divide-y divide-gray-200">
-                  {jobs.map((job) => (
-                    <JobItem
-                      {...job}
-                      key={`${job.uploadId}-${job.status}`}
-                      onClickCancelButton={() =>
-                        onClickCancelButton(job.uploadId)
-                      }
-                      onClickResumeButton={() =>
-                        onClickResumeButton(job.uploadId)
-                      }
-                      onClickPauseButton={() =>
-                        onClickPauseButton(job.uploadId)
-                      }
-                    />
-                  ))}
-                </ul>
-                <div className="p-4 border-t">
+                {jobs.length > 0 ? (
+                  <ul className="h-96 divide-y divide-gray-200">
+                    {jobs.map((job) => (
+                      <JobItem
+                        {...job}
+                        key={`${job.uploadId}-${job.status}`}
+                        onClickCancelButton={() =>
+                          onClickCancelButton(job.uploadId)
+                        }
+                        onClickResumeButton={() =>
+                          onClickResumeButton(job.uploadId)
+                        }
+                        onClickPauseButton={() =>
+                          onClickPauseButton(job.uploadId)
+                        }
+                      />
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="h-96 flex flex-col justify-center items-center column text-gray-400">
+                    <p>
+                      <strong>Empty Queue</strong>
+                    </p>
+                    <p>Please add video files using the input above</p>
+                  </div>
+                )}
+                <div
+                  className={`${jobs.length ? 'block' : 'hidden'} p-4 border-t`}
+                >
                   <button
                     className={`bg-blue-500 text-white font-bold py-2 px-4 rounded ${disabledClass}`}
                     type="button"
