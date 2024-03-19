@@ -1,10 +1,9 @@
-import { getStreamAccessToken, streamVideoObjectsCreator } from './services';
+import { getStreamAccessToken, videoObjectsCreator } from './services';
 import {
   CreateUploader,
   UploaderInterface,
   UploadJob,
   UploadManagerOptions,
-  VideoObjectsCreatorParams,
 } from './types';
 import { createTusUploader } from './uploaders';
 import { signJWTToken, transformVideoObjectsToJobList } from './utils';
@@ -22,8 +21,6 @@ type UploadId = string | number;
  * 3. After adding all videos to upload, call `start` method.
  */
 export class VideoUploadManager {
-  public readonly uploadIds: UploadId[];
-
   private jobQueue: UploadJob[] = [];
 
   private jobsByUploadId: Map<UploadId, UploadJob>;
@@ -37,10 +34,6 @@ export class VideoUploadManager {
   private currentUploader: UploaderInterface;
 
   private readonly createUploader: CreateUploader;
-
-  private readonly videoObjectsCreator: (
-    payload: VideoObjectsCreatorParams,
-  ) => Promise<string[]>;
 
   private started: boolean;
 
@@ -77,11 +70,6 @@ export class VideoUploadManager {
     }
 
     this.createUploader = createUploader || createTusUploader;
-    // TODO: Change to QoderVideoObjectsCreator
-    this.videoObjectsCreator =
-      this.options.serviceName === 'byteark.stream'
-        ? streamVideoObjectsCreator
-        : streamVideoObjectsCreator;
     this.jobQueue = new Array<UploadJob>();
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
     this.started = false;
@@ -124,17 +112,15 @@ export class VideoUploadManager {
   }
 
   async addUploadJobs(files: FileList): Promise<void> {
-    const filesArray = Array.from(files);
+    const filesArray: File[] = Array.from(files);
 
-    const videoKeys = await this.videoObjectsCreator({
+    const videoKeys: string[] = await videoObjectsCreator({
+      appId: this.options.formId,
       files: filesArray,
       projectKey: this.options.projectKey,
       authorizationToken: this.authorizationToken,
+      serviceName: this.options.serviceName,
     });
-
-    if (!videoKeys?.length) {
-      throw Error('Cannot find any video id');
-    }
 
     const jobList = transformVideoObjectsToJobList(filesArray, videoKeys);
 
@@ -145,7 +131,7 @@ export class VideoUploadManager {
   }
 
   /**
-   * Add a upload job to the queue.
+   * Add an upload job to the queue.
    * Use this function to upload a file to existing video resource on ByteArk Stream or Qoder.
    *
    * @param uploadId Upload ID. Use "video.object.source_id" for ByteArk Qoder.

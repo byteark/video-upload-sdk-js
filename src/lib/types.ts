@@ -33,7 +33,7 @@ export interface UploaderInterface {
   resume(): Promise<UploadJob>;
 }
 
-export type ServiceName = 'byteark.stream' | 'byteark.qoder' | 'tus';
+export type ServiceName = 'byteark.stream' | 'byteark.qoder';
 
 export type CreateUploader = (
   job: UploadJob,
@@ -74,8 +74,25 @@ export interface StreamVideoObject {
   createdAt: string;
 }
 
-export interface VideoObjectsCreatorParams {
+export interface QoderVideoObject {
+  id: string;
+  key: string;
+  project: {
+    key: string;
+  };
+  projectId: string;
+  title: string;
+  updatedAt: string;
+  createdAt: string;
+  source: {
+    id: string;
+  };
+}
+
+export interface VideoObjectsCreatorProps {
+  appId?: string;
+  authorizationToken: string;
   files: File[];
   projectKey: string;
-  authorizationToken: string;
+  serviceName: ServiceName;
 }

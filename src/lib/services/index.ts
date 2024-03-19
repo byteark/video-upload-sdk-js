@@ -1,22 +1,27 @@
-import { StreamVideoObject, VideoObjectsCreatorParams } from '../types';
+import {
+  QoderVideoObject,
+  StreamVideoObject,
+  VideoObjectsCreatorProps,
+} from '../types';
 
-export async function streamVideoObjectsCreator({
-  files,
-  projectKey,
-  authorizationToken,
-}: VideoObjectsCreatorParams): Promise<string[] | null> {
-  if (!files.length || !projectKey) {
-    return null;
+export async function videoObjectsCreator(
+  props: VideoObjectsCreatorProps,
+): Promise<string[]> {
+  const { appId, authorizationToken, files, projectKey, serviceName } = props;
+
+  const isStream = serviceName === 'byteark.stream';
+  const isQoder = serviceName === 'byteark.qoder';
+
+  if (!files.length || !projectKey || (isQoder && !appId)) {
+    return Promise.resolve(null);
   }
 
-  try {
-    const response = await fetch(`https://stream.byteark.com/api/v1/videos`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authorizationToken}`,
-      },
-      body: JSON.stringify({
+  const requestUrl = isStream
+    ? 'https://stream.byteark.com/api/v1/videos'
+    : `https://qoder.byteark.com/apps/${appId}/videos`;
+
+  const requestBody = isStream
+    ? {
         projectKey,
         videos: files.map((file) => ({
           title: file.name,
@@ -26,19 +31,43 @@ export async function streamVideoObjectsCreator({
             fileName: file.name,
           },
         })),
-      }),
+      }
+    : files.map((file) => ({
+        title: file.name,
+        size: file.size,
+        project: {
+          id: projectKey,
+        },
+      }));
+
+  try {
+    const response = await fetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authorizationToken}`,
+      },
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       throw new Error(
-        `Error create Stream video HTTP Error code: ${response.status}`,
+        `Error create ${isStream ? 'Stream' : 'Qoder'} video HTTP Error code: ${response.status}`,
       );
     }
 
-    return (await response.json()).map((video: StreamVideoObject) => video.key);
+    const data = await response.json();
+
+    console.log(data);
+
+    if (isStream) {
+      return data.map((video: StreamVideoObject) => video.key);
+    }
+
+    return data.map((video: QoderVideoObject) => video.source.id);
   } catch (error) {
     console.error(error);
-    return null;
+    return [];
   }
 }
 
