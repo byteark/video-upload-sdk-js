@@ -3,6 +3,8 @@
 Uploading video files directly from user's browser to ByteArk Stream
 and ByteArk Qoder service.
 
+⚠️ For users who are using Video Upload SDK v1.2.3 and earlier, please refer the [Migration Guide](#v13-migration-guide) for migrating to v1.3.0 and newer. ⚠️
+
 ## Installation
 
 For Yarn:
@@ -154,3 +156,19 @@ Triggers when something happened while uploading and halted the uploader.
 We have an example application in
 
 - React: [./examples/video-upload-react/src/App.js](/examples/video-upload-react).
+
+## v1.3 Migration Guide
+
+This guide details the changes and how to change your code to migrate to Video Upload SDK version 1.3.
+
+### ByteArk Stream Service
+To upload videos to ByteArk Stream, you are now required to [create a form upload](https://docs.byteark.com/th/stream/developer-forms.html#%E0%B8%82%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%95%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B8%B5%E0%B9%88-1-%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%9F%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A1%E0%B8%AD%E0%B8%B1%E0%B8%9B%E0%B9%82%E0%B8%AB%E0%B8%A5%E0%B8%94%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%84%E0%B8%B8%E0%B8%93%E0%B9%83%E0%B8%99-byteark-stream). You will obtain formId and formSecret after creating the form. And you are now required to initialize the SDK using these form ID and form secret. [Click here for an example code](#example-code).
+
+### Removal of authorizationToken
+authorizationToken was removed from the SDK options. Please remove it from either ByteArk Qoder or ByteArk Stream service.
+
+### Method Changes
+addUploadJob method was removed. Please use [addUploadJobs](#methods) instead. You can now add multiple videos using this new method.
+
+### Built-in Video Object Creator
+The SDK will now create videos when adding upload jobs. After videos are created, the SDK will also trigger [onVideosCreated](#callbacks) callback.
