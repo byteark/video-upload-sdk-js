@@ -3,4 +3,5 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   modulePathIgnorePatterns: ['./build/'],
+  transformIgnorePatterns: ['/node_modules/(?!jose)'],
 };
