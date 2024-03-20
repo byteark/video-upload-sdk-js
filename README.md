@@ -25,7 +25,7 @@ The following variables should be replaced:
 
 - serviceName: byteark.qoder
 - serviceEndpoint
-  - For frontend uploading: should be `https://qoder.byteark.com/apps/<appId>/ajax`,
+  - For front-end uploading: should be `https://qoder.byteark.com/apps/<appId>/ajax`,
     replacing appId with the application id.
 - FormId
   - Ask ByteArk admin for appId.
@@ -40,11 +40,11 @@ The following variables should be replaced:
 
 - serviceName: byteark.stream
 - serviceEndpoint
-  - For frontend uploading: should be 'https://stream.byteark.com'.
+  - For front-end uploading: should be `https://stream.byteark.com`.
 - FormId
-  - Get formId from https://stream.byteark.com/<namespace>/manage/forms/<formId>.
+  - Get formId from `https://stream.byteark.com/<namespace>/manage/forms/<formId>`.
 - FormSecret
-  - Get formSecret from https://stream.byteark.com/<namespace>/manage/forms/<formId>.
+  - Get formSecret from `https://stream.byteark.com/<namespace>/manage/forms/<formId>`.
 - projectKey
   - Project key that you want to upload.
 
