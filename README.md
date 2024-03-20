@@ -61,7 +61,7 @@ main();
 
 ### For ByteArk Stream
 
-You are required to [create a form upload](https://docs.byteark.com/th/stream/developer-forms.html#%E0%B8%82%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%95%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B8%B5%E0%B9%88-1-%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%9F%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A1%E0%B8%AD%E0%B8%B1%E0%B8%9B%E0%B9%82%E0%B8%AB%E0%B8%A5%E0%B8%94%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%84%E0%B8%B8%E0%B8%93%E0%B9%83%E0%B8%99-byteark-stream). You will obtain formId and formSecret after creating the form.
+You are required to [create a form upload](https://docs.byteark.com/th/stream/developer-forms.html#%E0%B8%82%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%95%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B8%B5%E0%B9%88-1-%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%9F%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A1%E0%B8%AD%E0%B8%B1%E0%B8%9B%E0%B9%82%E0%B8%AB%E0%B8%A5%E0%B8%94%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%84%E0%B8%B8%E0%B8%93%E0%B9%83%E0%B8%99-byteark-stream) to use this SDK. You will obtain `formId` and `formSecret` after creating the form.
 
 - **serviceName**: Please use `byteark.stream`
 - **serviceEndpoint**: For uploading from front-end, please use `https://stream.byteark.com`
@@ -71,7 +71,7 @@ You are required to [create a form upload](https://docs.byteark.com/th/stream/de
 
 ### For ByteArk Qoder (Legacy)
 
-ByteArk Qoder is our legacy service. Please contact ByteArk admin for Qoder's appId and appSecret.
+ByteArk Qoder is our legacy service. Please contact ByteArk admin for Qoder's `appId` and `appSecret`.
 
 - **serviceName**: Please use `byteark.qoder`
 - **serviceEndpoint**: For uploading from front-end, please use `https://qoder.byteark.com/apps/<appId>/ajax`
