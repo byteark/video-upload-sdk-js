@@ -21,35 +21,6 @@ npm install --save @byteark/video-upload-sdk
 
 ## Usage
 
-### Usage for ByteArk Qoder
-
-The following variables should be replaced:
-
-- serviceName: byteark.qoder
-- serviceEndpoint
-  - For front-end uploading: should be `https://qoder.byteark.com/apps/<appId>/ajax`,
-    replacing appId with the application id.
-- FormId
-  - Ask ByteArk admin for appId.
-- FormSecret
-  - Ask ByteArk admin for appSecret.
-- projectKey
-  - Project id that you want to upload.
-
-### Usage for ByteArk Stream
-
-The following variables should be replaced:
-
-- serviceName: byteark.stream
-- serviceEndpoint
-  - For front-end uploading: should be `https://stream.byteark.com`.
-- FormId
-  - Get formId from `https://stream.byteark.com/<namespace>/manage/forms/<formId>`.
-- FormSecret
-  - Get formSecret from `https://stream.byteark.com/<namespace>/manage/forms/<formId>`.
-- projectKey
-  - Project key that you want to upload.
-
 ### Example Code
 
 ```ts
@@ -57,13 +28,12 @@ import { VideoUploadManager } from '@byteark/video-upload-sdk';
 
 async function main() {
   const uploadManager = new VideoUploadManager({
-    serviceName: 'byteark.qoder | byteark.stream',
+    serviceName: 'byteark.stream' | 'byteark.qoder',
     serviceEndpoint:
-      'https://qoder.byteark.com/apps/<appIdHere>/ajax' |
-      'https://stream.byteark.com',
-    formId: '<AppId(Qoder)>' | '<FormId(Stream)>',
-    formSecret: '<FormSecret>',
-    projectKey: '<projectId(Qoder)>' | '<projectKey(Stream)>',
+      'https://stream.byteark.com' | 'https://qoder.byteark.com/apps/<appIdHere>/ajax',
+    formId: '<formId(Stream)>' | '<appId(Qoder)>',
+    formSecret: '<formSecret>',
+    projectKey: '<projectKey(Stream)>' | '<projectId(Qoder)>',
     onUploadProgress: (job: UploadJob, progress: UploadProgress) => {
       // Called when video uploading has a progress.
     },
@@ -72,6 +42,9 @@ async function main() {
     },
     onUploadFailed: (job: UploadJob, error: Error | DetailedError) => {
       // Called when video uploading failed (cannot retry).
+    },
+    onVideosCreated: (videoKeys: string[]) => {
+      // Called after all videos are created on our service.
     },
   });
 
@@ -83,6 +56,28 @@ async function main() {
 
 main();
 ```
+
+## SDK Options
+
+### For ByteArk Stream
+
+You are required to [create a form upload](https://docs.byteark.com/th/stream/developer-forms.html#%E0%B8%82%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%95%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B8%B5%E0%B9%88-1-%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%9F%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A1%E0%B8%AD%E0%B8%B1%E0%B8%9B%E0%B9%82%E0%B8%AB%E0%B8%A5%E0%B8%94%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%84%E0%B8%B8%E0%B8%93%E0%B9%83%E0%B8%99-byteark-stream). You will obtain formId and formSecret after creating the form.
+
+- **serviceName**: Please use `byteark.stream`
+- **serviceEndpoint**: For uploading from front-end, please use `https://stream.byteark.com`
+- **formId**: Please use your form upload's `formId`
+- **formSecret**: Please use your form upload's `formSecret`
+- **projectKey**: Please use the `projectKey` that you want to upload videos into. Please refer to this [documentation](https://docs.byteark.com/th/stream/project-management-overview.html#%E0%B8%A7%E0%B8%B4%E0%B8%98%E0%B8%B5%E0%B8%99%E0%B9%8D%E0%B8%B2%E0%B8%84%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B9%82%E0%B8%9B%E0%B8%A3%E0%B9%80%E0%B8%88%E0%B8%81%E0%B8%95%E0%B9%8C%E0%B9%84%E0%B8%9B%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99) to get your project key.
+
+### For ByteArk Qoder (Legacy)
+
+ByteArk Qoder is our legacy service. Please contact ByteArk admin for Qoder's appId and appSecret.
+
+- **serviceName**: Please use `byteark.qoder`
+- **serviceEndpoint**: For uploading from front-end, please use `https://qoder.byteark.com/apps/<appId>/ajax`
+- **formId**: Please use `appId`
+- **formSecret**: Please use `appSecret`
+- **projectKey**: Please use the project's ID that you want to upload videos into.
 
 ## Getters
 
