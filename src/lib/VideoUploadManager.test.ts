@@ -132,7 +132,7 @@ describe('VideoUploadManager UseCase', () => {
       maximumConcurrentJobs: 1,
       formId: '',
       formSecret: '',
-      projectKey: ''
+      projectKey: '',
     });
     uploadManager.addUploadJob('1', fakeVideoFile);
     uploadManager.addUploadJob('2', fakeVideoFile);
@@ -166,7 +166,7 @@ describe('VideoUploadManager UseCase', () => {
       maximumConcurrentJobs: 4,
       formId: '',
       formSecret: '',
-      projectKey: ''
+      projectKey: '',
     });
 
     uploadManager.addUploadJob('1', fakeVideoFile);
@@ -199,20 +199,32 @@ describe('VideoUploadManager.options', () => {
     );
 
     // @ts-expect-error Missing serviceName and serviceEndpoint
-    expect(() => new VideoUploadManager({ maximumConcurrentJobs: 10 })).toThrow('serviceName and serviceEndpoint are required in the option parameter.');
+    expect(() => new VideoUploadManager({ maximumConcurrentJobs: 10 })).toThrow(
+      'serviceName and serviceEndpoint are required in the option parameter.',
+    );
 
-    // @ts-expect-error Missing serviceEndpoint
-    expect(() => new VideoUploadManager({ serviceName: 'byteark.stream' })).toThrow('serviceEndpoint is required in the option parameter.');
+    expect(
+      // @ts-expect-error Missing serviceEndpoint
+      () => new VideoUploadManager({ serviceName: 'byteark.stream' }),
+    ).toThrow('serviceEndpoint is required in the option parameter.');
 
-    // @ts-expect-error Missing serviceName
-    expect(() => new VideoUploadManager({ serviceEndpoint: 'https://stream.byteark.com',})).toThrow('serviceName is required in the option parameter.');
+    expect(
+      () =>
+        // @ts-expect-error Missing serviceName
+        new VideoUploadManager({
+          serviceEndpoint: 'https://stream.byteark.com',
+        }),
+    ).toThrow('serviceName is required in the option parameter.');
 
-    expect(() => new VideoUploadManager({
-      serviceName: 'byteark.stream',
-      serviceEndpoint: 'https://stream.byteark.com',
-      formId: '',
-      formSecret: '',
-      projectKey: ''
-    })).toBeTruthy();
+    expect(
+      () =>
+        new VideoUploadManager({
+          serviceName: 'byteark.stream',
+          serviceEndpoint: 'https://stream.byteark.com',
+          formId: '',
+          formSecret: '',
+          projectKey: '',
+        }),
+    ).toBeTruthy();
   });
 });
