@@ -122,6 +122,10 @@ export class VideoUploadManager {
       serviceName: this.options.serviceName,
     });
 
+    if (typeof this.options.onVideosCreated === 'function') {
+      this.options.onVideosCreated(videoKeys);
+    }
+
     const jobList = transformVideoObjectsToJobList(filesArray, videoKeys);
 
     jobList.forEach((job) => {

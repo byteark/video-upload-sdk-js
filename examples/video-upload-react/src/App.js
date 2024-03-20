@@ -98,6 +98,9 @@ function App() {
       console.log('Example: onUploadFailed');
       setJobs([...uploadManager.getJobQueue()]);
     },
+    onVideosCreated: (videoKeys) => {
+      console.log(`Videos created: ${videoKeys}`);
+    },
   };
 
   const [jobs, setJobs] = useState([]);
