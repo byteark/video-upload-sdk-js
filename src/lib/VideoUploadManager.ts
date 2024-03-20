@@ -112,6 +112,12 @@ export class VideoUploadManager {
   }
 
   async addUploadJobs(files: FileList): Promise<void> {
+    if (this.options.serviceName === 'byteark.qoder') {
+      throw new Error(
+        'Uploading to ByteArk Qoder is temporarily unavailable on Video Upload SDK v1.3.0-beta.1',
+      );
+    }
+
     const filesArray: File[] = Array.from(files);
 
     const videoKeys: string[] = await videoObjectsCreator({
