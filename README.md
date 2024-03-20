@@ -27,13 +27,17 @@ npm install --save @byteark/video-upload-sdk
 import { VideoUploadManager } from '@byteark/video-upload-sdk';
 
 async function main() {
+  // Initialize the SDK
   const uploadManager = new VideoUploadManager({
+    // SDK Options
     serviceName: 'byteark.stream' | 'byteark.qoder',
     serviceEndpoint:
       'https://stream.byteark.com' | 'https://qoder.byteark.com/apps/<appIdHere>/ajax',
     formId: '<formId(Stream)>' | '<appId(Qoder)>',
     formSecret: '<formSecret>',
     projectKey: '<projectKey(Stream)>' | '<projectId(Qoder)>',
+
+    // Callback Functions
     onUploadProgress: (job: UploadJob, progress: UploadProgress) => {
       // Called when video uploading has a progress.
     },
@@ -48,9 +52,8 @@ async function main() {
     },
   });
 
-  uploadManager.addUploadJob('<videoSourceFileId>', file1);
-  uploadManager.addUploadJob('<videoSourceFileId>', file2);
-  uploadManager.addUploadJob('<videoSourceFileId>', file3);
+  // An example use case
+  uploadManager.addUploadJobs(fileList);
   await uploadManager.start();
 }
 
