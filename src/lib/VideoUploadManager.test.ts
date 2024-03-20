@@ -1,4 +1,4 @@
-// import nock from 'nock';
+import fetchMock from 'jest-fetch-mock';
 
 import { VideoUploadManager } from './VideoUploadManager';
 
@@ -9,23 +9,33 @@ jest.mock('tus-js-client', () => ({
   })),
 }));
 
-// nock('https://stream.byteark.com')
-//   .persist()
-//   .defaultReplyHeaders({
-//     location: 'https://stream.byteark.com/api/upload/v1/tus/videos/videoId',
-//   })
-//   .post('/api/upload/v1/tus/videos')
-//   .reply(201, undefined, {
-//     'Tus-Resumable': '1.0.0',
-//   });
+jest.mock('jose', () => ({
+  SignJWT: jest.fn().mockImplementation(() => ({
+    setProtectedHeader: jest.fn().mockReturnThis(),
+    setExpirationTime: jest.fn().mockReturnThis(),
+    sign: jest.fn().mockResolvedValue('token')
+  }))
+}));
 
-// nock('https://stream.byteark.com')
-//   .persist()
-//   .patch(/\/api\/upload\/v1\/tus\/videos\/\w+/)
-//   .reply(204, undefined, {
-//     'Tus-Resumable': '1.0.0',
-//     'Upload-Offset': '11815175',
-//   });
+
+fetchMock.mockResponse(JSON.stringify([{
+  id: 'video-id',
+  key: 'video-key',
+  project: {
+    key: 'project-key',
+  },
+  title: 'video-title',
+  updatedAt: '2024-03-14T07:28:09.032Z',
+  createdAt: '2024-03-14T07:28:09.032Z',
+}]), {
+  url: 'https://stream.byteark.com/api/v1/videos',
+})
+
+fetchMock.mockResponse(JSON.stringify({
+  accessToken: 'fake-access-token'
+}), {
+  url: 'https://stream.byteark.com/\/api\/auth\/v1\/public\/apps\/\w+\/access-token/',
+})
 
 describe('VideoUploadManager', () => {
   test("requires an 'options' parameter", () => {
@@ -40,18 +50,36 @@ describe('VideoUploadManager UseCase', () => {
   let uploadManager: VideoUploadManager;
   const fakeVideoFile = new File([''], 'filename');
 
+  function createFileList(files): FileList {
+    const fileList = {
+      length: files.length,
+      item(index) {
+        return index < files.length ? files[index] : null;
+      }
+    };
+    return Object.setPrototypeOf(fileList, FileList.prototype);
+  }
+  
+  // Example usage
+  const files = [
+    new File([''], 'filename'),
+    new File([''], 'filename2')
+  ];
+  
+  const fakeFileList = createFileList(files);
+
   beforeEach(() => {
     uploadManager = new VideoUploadManager({
       serviceName: 'byteark.stream',
       serviceEndpoint: 'https://stream.byteark.com',
-      formId: '',
-      formSecret: '',
-      projectKey: '',
+      formId: 'form-id',
+      formSecret: 'form-secret',
+      projectKey: 'project-key',
     });
   });
 
   test('can add an upload job to jobQueue', () => {
-    uploadManager.addUploadJob('1234', fakeVideoFile);
+    uploadManager.addUploadJobs(fakeFileList);
 
     expect(uploadManager.getJobQueue()).toStrictEqual([
       {

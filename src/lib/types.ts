@@ -69,7 +69,6 @@ export interface StreamVideoObject {
   project: {
     key: string;
   };
-  projectId: string;
   title: string;
   updatedAt: string;
   createdAt: string;

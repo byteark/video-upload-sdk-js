@@ -92,6 +92,7 @@ export async function getStreamAccessToken(
         }),
       },
     );
+    
     if (!response.ok) {
       throw new Error(
         `Error fetching Stream access token HTTP Error code: ${response.status}`,
