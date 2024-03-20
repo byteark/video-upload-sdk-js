@@ -50,6 +50,7 @@ export interface UploadManagerCallbacks {
   onUploadProgress?: (job: UploadJob, progress: UploadProgress) => void;
   onUploadCompleted?: (job: UploadJob) => void;
   onUploadFailed?: (job: UploadJob, error: Error | DetailedError) => void;
+  onVideosCreated?: (videoKeys: string[]) => void | Promise<void>;
 }
 
 export interface UploadManagerOptions extends UploadManagerCallbacks {

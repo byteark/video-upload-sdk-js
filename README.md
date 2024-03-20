@@ -93,9 +93,9 @@ main();
 
 ## Methods
 
-### addUploadJobs(file: File[]): `Promise<void>`
+### addUploadJobs(files: FileList): `Promise<void>`
 
-Add files to enable the SDK to create a video object and set up a job for uploading.
+Add videos that you want to upload. The SDK will create videos from the inputted files, trigger "onVideosCreated" callback, and add them to a job queue.
 
 ### setOptions(newOptions: UploadManagerOptions): `void`
 
@@ -126,6 +126,28 @@ This method throws an error when a job with the provided uploadId cannot be foun
 ### cancelAll(): `Promise<void>`
 
 Cancel all jobs in a job queue.
+
+## Callbacks
+
+### onVideosCreated(videoKeys: string[])
+
+Triggers after all videos are created on our service, which will happen after calling `addUploadJobs(files)` method.
+
+### onUploadStarted(job: UploadJob)
+
+Triggers after the first upload job started uploading.
+
+### onUploadProgress(job: UploadJob, progress: UploadProgress)
+
+Triggers periodically when upload job(s) are being uploaded.
+
+### onUploadCompleted(job: UploadJob)
+
+Triggers after all upload jobs finished uploading.
+
+### onUploadFailed(job: UploadJob, error: Error | DetailedError)
+
+Triggers when something happened while uploading and halted the uploader.
 
 ## Example Application
 
