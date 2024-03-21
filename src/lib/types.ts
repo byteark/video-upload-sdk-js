@@ -84,8 +84,10 @@ export interface QoderVideoObject {
   title: string;
   updatedAt: string;
   createdAt: string;
-  source: {
-    id: string;
+  object: {
+    source: {
+      id: string;
+    };
   };
 }
 
