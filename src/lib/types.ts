@@ -69,7 +69,6 @@ export interface StreamVideoObject {
   project: {
     key: string;
   };
-  projectId: string;
   title: string;
   updatedAt: string;
   createdAt: string;
@@ -85,8 +84,10 @@ export interface QoderVideoObject {
   title: string;
   updatedAt: string;
   createdAt: string;
-  source: {
-    id: string;
+  object: {
+    source: {
+      id: string;
+    };
   };
 }
 

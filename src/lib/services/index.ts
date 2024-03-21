@@ -18,7 +18,7 @@ export async function videoObjectsCreator(
 
   const requestUrl = isStream
     ? 'https://stream.byteark.com/api/v1/videos'
-    : `https://qoder.byteark.com/apps/${appId}/ajax/videos`;
+    : `https://qoder.byteark.com/apps/${appId}/ajax/videos/bulk`;
 
   const requestBody = isStream
     ? {
@@ -32,13 +32,15 @@ export async function videoObjectsCreator(
           },
         })),
       }
-    : files.map((file) => ({
-        title: file.name,
-        size: file.size,
-        project: {
-          id: projectKey,
-        },
-      }));
+    : {
+        videos: files.map((file) => ({
+          title: file.name,
+          size: file.size,
+          project: {
+            id: projectKey,
+          },
+        })),
+      };
 
   try {
     const response = await fetch(requestUrl, {
@@ -62,7 +64,7 @@ export async function videoObjectsCreator(
       return data.map((video: StreamVideoObject) => video.key);
     }
 
-    return data.map((video: QoderVideoObject) => video.source.id);
+    return data.map((video: QoderVideoObject) => video.object.source.id);
   } catch (error) {
     console.error(error);
     return [];
@@ -90,6 +92,7 @@ export async function getStreamAccessToken(
         }),
       },
     );
+
     if (!response.ok) {
       throw new Error(
         `Error fetching Stream access token HTTP Error code: ${response.status}`,
