@@ -20,7 +20,7 @@ jest.mock('jose', () => ({
 
 fetchMock.mockResponse(JSON.stringify([{
   id: 'video-id',
-  key: 'video-key',
+  key: '1234',
   project: {
     key: 'project-key',
   },
@@ -31,11 +31,11 @@ fetchMock.mockResponse(JSON.stringify([{
   url: 'https://stream.byteark.com/api/v1/videos',
 })
 
-fetchMock.mockResponse(JSON.stringify({
-  accessToken: 'fake-access-token'
-}), {
-  url: 'https://stream.byteark.com/\/api\/auth\/v1\/public\/apps\/\w+\/access-token/',
-})
+// fetchMock.mockResponse(JSON.stringify({
+//   accessToken: 'fake-access-token'
+// }), {
+//   url: /https:\/\/stream.byteark.com\/api\/auth\/v1\/public\/apps\/\w+\/access-token\//.toString(),
+// });
 
 describe('VideoUploadManager', () => {
   test("requires an 'options' parameter", () => {
@@ -50,22 +50,21 @@ describe('VideoUploadManager UseCase', () => {
   let uploadManager: VideoUploadManager;
   const fakeVideoFile = new File([''], 'filename');
 
-  function createFileList(files): FileList {
-    const fileList = {
-      length: files.length,
-      item(index) {
-        return index < files.length ? files[index] : null;
-      }
-    };
-    return Object.setPrototypeOf(fileList, FileList.prototype);
-  }
-  
+  const createFileList = (files: File[]): FileList => {
+    const fileList = { length: files.length } as FileList;
+    files.forEach((file, index) => {
+      fileList[index] = file;
+    });
+    fileList.item = (index: number) => fileList[index];
+    return fileList;
+  };
+
   // Example usage
   const files = [
     new File([''], 'filename'),
     new File([''], 'filename2')
   ];
-  
+
   const fakeFileList = createFileList(files);
 
   beforeEach(() => {
@@ -78,8 +77,8 @@ describe('VideoUploadManager UseCase', () => {
     });
   });
 
-  test('can add an upload job to jobQueue', () => {
-    uploadManager.addUploadJobs(fakeFileList);
+  test('can add an upload job to jobQueue', async () => {
+    await uploadManager.addUploadJobs(fakeFileList);
 
     expect(uploadManager.getJobQueue()).toStrictEqual([
       {
