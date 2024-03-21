@@ -17,42 +17,6 @@ jest.mock('jose', () => ({
   }))
 }));
 
-
-fetchMock.mockResponse(JSON.stringify([
-  {
-    id: 'video-id',
-    key: 'video-key-1',
-    project: {
-      key: 'project-key',
-    },
-    title: 'video-title',
-    updatedAt: '2024-03-14T07:28:09.032Z',
-    createdAt: '2024-03-14T07:28:09.032Z',
-  },
-  {
-    id: 'video-id',
-    key: 'video-key-2',
-    project: {
-      key: 'project-key',
-    },
-    title: 'video-title',
-    updatedAt: '2024-03-14T07:28:09.032Z',
-    createdAt: '2024-03-14T07:28:09.032Z',
-  },
-  {
-    id: 'video-id',
-    key: 'video-key-3',
-    project: {
-      key: 'project-key',
-    },
-    title: 'video-title',
-    updatedAt: '2024-03-14T07:28:09.032Z',
-    createdAt: '2024-03-14T07:28:09.032Z',
-  }
-]), {
-  url: 'https://stream.byteark.com/api/v1/videos',
-})
-
 const createFileList = (files: File[]): FileList => {
   const fileList = { length: files.length } as FileList;
   files.forEach((file, index) => {
@@ -70,6 +34,47 @@ const files = [
 ];
 
 const fakeFileList = createFileList(files);
+
+fetchMock.mockResponse(async (req) => {
+  if (req.url === 'https://stream.byteark.com/api/v1/videos') {
+    return JSON.stringify([
+      {
+        id: 'video-id',
+        key: 'video-key-1',
+        project: {
+          key: 'project-key',
+        },
+        title: 'video-title',
+        updatedAt: '2024-03-14T07:28:09.032Z',
+        createdAt: '2024-03-14T07:28:09.032Z',
+      },
+      {
+        id: 'video-id',
+        key: 'video-key-2',
+        project: {
+          key: 'project-key',
+        },
+        title: 'video-title',
+        updatedAt: '2024-03-14T07:28:09.032Z',
+        createdAt: '2024-03-14T07:28:09.032Z',
+      },
+      {
+        id: 'video-id',
+        key: 'video-key-3',
+        project: {
+          key: 'project-key',
+        },
+        title: 'video-title',
+        updatedAt: '2024-03-14T07:28:09.032Z',
+        createdAt: '2024-03-14T07:28:09.032Z',
+      }
+    ])
+  }
+  if (req.url === 'https://stream.byteark.com/api/auth/v1/public/apps/form-id/access-tokens') {
+    return JSON.stringify({ accessToken: 'fake-token' })
+  }
+  return Promise.reject(new Error('bad url'))
+})
 
 describe('VideoUploadManager', () => {
   test("requires an 'options' parameter", () => {
