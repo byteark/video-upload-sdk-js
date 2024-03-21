@@ -58,8 +58,6 @@ export async function videoObjectsCreator(
 
     const data = await response.json();
 
-    console.log(data);
-
     if (isStream) {
       return data.map((video: StreamVideoObject) => video.key);
     }
