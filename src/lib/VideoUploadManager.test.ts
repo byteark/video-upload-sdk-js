@@ -18,24 +18,58 @@ jest.mock('jose', () => ({
 }));
 
 
-fetchMock.mockResponse(JSON.stringify([{
-  id: 'video-id',
-  key: '1234',
-  project: {
-    key: 'project-key',
+fetchMock.mockResponse(JSON.stringify([
+  {
+    id: 'video-id',
+    key: 'video-key-1',
+    project: {
+      key: 'project-key',
+    },
+    title: 'video-title',
+    updatedAt: '2024-03-14T07:28:09.032Z',
+    createdAt: '2024-03-14T07:28:09.032Z',
   },
-  title: 'video-title',
-  updatedAt: '2024-03-14T07:28:09.032Z',
-  createdAt: '2024-03-14T07:28:09.032Z',
-}]), {
+  {
+    id: 'video-id',
+    key: 'video-key-2',
+    project: {
+      key: 'project-key',
+    },
+    title: 'video-title',
+    updatedAt: '2024-03-14T07:28:09.032Z',
+    createdAt: '2024-03-14T07:28:09.032Z',
+  },
+  {
+    id: 'video-id',
+    key: 'video-key-3',
+    project: {
+      key: 'project-key',
+    },
+    title: 'video-title',
+    updatedAt: '2024-03-14T07:28:09.032Z',
+    createdAt: '2024-03-14T07:28:09.032Z',
+  }
+]), {
   url: 'https://stream.byteark.com/api/v1/videos',
 })
 
-// fetchMock.mockResponse(JSON.stringify({
-//   accessToken: 'fake-access-token'
-// }), {
-//   url: /https:\/\/stream.byteark.com\/api\/auth\/v1\/public\/apps\/\w+\/access-token\//.toString(),
-// });
+const createFileList = (files: File[]): FileList => {
+  const fileList = { length: files.length } as FileList;
+  files.forEach((file, index) => {
+    fileList[index] = file;
+  });
+  fileList.item = (index: number) => fileList[index];
+  return fileList;
+};
+
+// Example usage
+const files = [
+  new File([''], 'filename'),
+  new File([''], 'filename2'),
+  new File([''], 'filename3')
+];
+
+const fakeFileList = createFileList(files);
 
 describe('VideoUploadManager', () => {
   test("requires an 'options' parameter", () => {
@@ -48,24 +82,6 @@ describe('VideoUploadManager', () => {
 
 describe('VideoUploadManager UseCase', () => {
   let uploadManager: VideoUploadManager;
-  const fakeVideoFile = new File([''], 'filename');
-
-  const createFileList = (files: File[]): FileList => {
-    const fileList = { length: files.length } as FileList;
-    files.forEach((file, index) => {
-      fileList[index] = file;
-    });
-    fileList.item = (index: number) => fileList[index];
-    return fileList;
-  };
-
-  // Example usage
-  const files = [
-    new File([''], 'filename'),
-    new File([''], 'filename2')
-  ];
-
-  const fakeFileList = createFileList(files);
 
   beforeEach(() => {
     uploadManager = new VideoUploadManager({
@@ -82,104 +98,132 @@ describe('VideoUploadManager UseCase', () => {
 
     expect(uploadManager.getJobQueue()).toStrictEqual([
       {
-        file: fakeVideoFile,
+        file: fakeFileList.item(0),
         name: 'filename',
         status: 'pending',
-        uploadId: '1234',
+        uploadId: 'video-key-1',
+      },
+      {
+        file: fakeFileList.item(1),
+        name: 'filename2',
+        status: 'pending',
+        uploadId: 'video-key-2',
+      },
+      {
+        file: fakeFileList.item(2),
+        name: 'filename3',
+        status: 'pending',
+        uploadId: 'video-key-3',
       },
     ]);
   });
 
+  test('onVideosCreated callback function return corrected video keys', async () => {
+    let videoKeys = [];
+
+    uploadManager.setOptions({
+      serviceName: 'byteark.stream',
+      serviceEndpoint: 'https://stream.byteark.com',
+      formId: 'form-id',
+      formSecret: 'form-secret',
+      projectKey: 'project-key',
+      onVideosCreated: (keys) => {
+        videoKeys = keys
+      }
+    });
+    await uploadManager.addUploadJobs(fakeFileList);
+
+    expect(videoKeys).toStrictEqual(['video-key-1', 'video-key-2', 'video-key-3']);
+  });
+
   test('can start uploading from a job queue', async () => {
-    uploadManager.addUploadJob('1234', fakeVideoFile);
+    await uploadManager.addUploadJobs(fakeFileList);
     await uploadManager.start();
 
     expect(uploadManager.getIsUploadStarted()).toBe(true);
-    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-1')).toMatchObject({
       status: 'uploading',
     });
   });
 
   test('options is not allowed to be set after uploading has started', async () => {
-    uploadManager.addUploadJob('1234', fakeVideoFile);
+    await uploadManager.addUploadJobs(fakeFileList);
     await uploadManager.start();
 
     expect(() =>
       uploadManager.setOptions({
         serviceName: 'byteark.stream',
         serviceEndpoint: 'https://stream.byteark.com',
-        formId: '',
-        formSecret: '',
-        projectKey: '',
+        formId: 'form-id',
+        formSecret: 'form-secret',
+        projectKey: 'project-key',
       }),
     ).toThrow('Cannot set new options after uploading has started.');
   });
 
   test('can pause uploading by uploadId', async () => {
-    uploadManager.addUploadJob('1234', fakeVideoFile);
+    await uploadManager.addUploadJobs(fakeFileList);
     await uploadManager.start();
-    uploadManager.pauseUploadById('1234');
+    uploadManager.pauseUploadById('video-key-1');
 
-    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-1')).toMatchObject({
       status: 'paused',
     });
   });
 
   test('can resume uploading by uploadId', async () => {
-    uploadManager.addUploadJob('1234', fakeVideoFile);
+    await uploadManager.addUploadJobs(fakeFileList);
     await uploadManager.start();
-    uploadManager.pauseUploadById('1234');
+    uploadManager.pauseUploadById('video-key-1');
 
-    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-1')).toMatchObject({
       status: 'paused',
     });
 
-    uploadManager.resumeUploadById('1234');
+    uploadManager.resumeUploadById('video-key-1');
 
-    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-1')).toMatchObject({
       status: 'uploading',
     });
   });
 
   test('can cancel uploading by uploadId', async () => {
-    uploadManager.addUploadJob('1234', fakeVideoFile);
-    uploadManager.addUploadJob('234', fakeVideoFile);
+    await uploadManager.addUploadJobs(fakeFileList);
     await uploadManager.start();
-    uploadManager.cancelUploadById('1234');
+    uploadManager.cancelUploadById('video-key-1');
 
-    expect(uploadManager.getJobByUploadId('1234')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-1')).toMatchObject({
       status: 'cancelled',
     });
   });
 
   test('should upload a pending job after the previous job was cancelled', async () => {
+    await uploadManager.addUploadJobs(fakeFileList);
+
     uploadManager.setOptions({
       serviceName: 'byteark.stream',
       serviceEndpoint: 'https://stream.byteark.com',
-      maximumConcurrentJobs: 1,
-      formId: '',
-      formSecret: '',
-      projectKey: '',
+      maximumConcurrentJobs: 2,
+      formId: 'form-id',
+      formSecret: 'form-secret',
+      projectKey: 'project-key',
     });
-    uploadManager.addUploadJob('1', fakeVideoFile);
-    uploadManager.addUploadJob('2', fakeVideoFile);
 
     await uploadManager.start();
 
-    expect(uploadManager.getJobByUploadId('2')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-3')).toMatchObject({
       status: 'pending',
     });
 
-    await uploadManager.cancelUploadById('1');
+    await uploadManager.cancelUploadById('video-key-1');
 
-    expect(uploadManager.getJobByUploadId('2')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-3')).toMatchObject({
       status: 'uploading',
     });
   });
 
   test('can cancel all jobs', async () => {
-    uploadManager.addUploadJob('1234', fakeVideoFile);
-    uploadManager.addUploadJob('5678', fakeVideoFile);
+    await uploadManager.addUploadJobs(fakeFileList);
 
     await uploadManager.start();
     await uploadManager.cancelAll();
@@ -187,33 +231,27 @@ describe('VideoUploadManager UseCase', () => {
   });
 
   test('can set maximum concurrent jobs', async () => {
+    await uploadManager.addUploadJobs(fakeFileList);
+
     uploadManager.setOptions({
       serviceName: 'byteark.stream',
       serviceEndpoint: 'https://stream.byteark.com',
-      maximumConcurrentJobs: 4,
-      formId: '',
-      formSecret: '',
-      projectKey: '',
+      maximumConcurrentJobs: 2,
+      formId: 'form-id',
+      formSecret: 'form-secret',
+      projectKey: 'project-key',
     });
-
-    uploadManager.addUploadJob('1', fakeVideoFile);
-    uploadManager.addUploadJob('2', fakeVideoFile);
-    uploadManager.addUploadJob('3', fakeVideoFile);
-    uploadManager.addUploadJob('4', fakeVideoFile);
 
     await uploadManager.start();
 
-    expect(uploadManager.getJobByUploadId('1')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-1')).toMatchObject({
       status: 'uploading',
     });
-    expect(uploadManager.getJobByUploadId('2')).toMatchObject({
+    expect(uploadManager.getJobByUploadId('video-key-2')).toMatchObject({
       status: 'uploading',
     });
-    expect(uploadManager.getJobByUploadId('3')).toMatchObject({
-      status: 'uploading',
-    });
-    expect(uploadManager.getJobByUploadId('4')).toMatchObject({
-      status: 'uploading',
+    expect(uploadManager.getJobByUploadId('video-key-3')).toMatchObject({
+      status: 'pending',
     });
   });
 });
