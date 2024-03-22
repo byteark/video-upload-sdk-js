@@ -17,7 +17,7 @@ type UploadId = string | number;
  *
  * To use this manager:
  * 1. Create a new instance of VideoUploadManager
- * 2. Call `addUploadJob` method to add a video into the queue.
+ * 2. Call `addUploadJobs` method to add a video into the queue.
  * 3. After adding all videos to upload, call `start` method.
  */
 export class VideoUploadManager {
@@ -111,6 +111,12 @@ export class VideoUploadManager {
     this.getAuthorizationToken();
   }
 
+  /**
+   * Create video objects and add upload jobs to the queue.
+   * Use this function to upload video files to ByteArk Stream or Qoder.
+   *
+   * @param files Video file list
+   */
   async addUploadJobs(files: FileList): Promise<void> {
     const filesArray: File[] = Array.from(files);
 
@@ -132,25 +138,6 @@ export class VideoUploadManager {
       this.jobsByUploadId.set(job.uploadId, job);
     });
     this.jobQueue = [...this.jobQueue, ...jobList];
-  }
-
-  /**
-   * Add an upload job to the queue.
-   * Use this function to upload a file to existing video resource on ByteArk Stream or Qoder.
-   *
-   * @param uploadId Upload ID. Use "video.object.source_id" for ByteArk Qoder.
-   * @param file File instance to upload
-   */
-  addUploadJob(uploadId: string | number, file: File): void {
-    const job: UploadJob = {
-      uploadId,
-      file,
-      name: file.name,
-      status: 'pending',
-    };
-
-    this.jobsByUploadId.set(job.uploadId, job);
-    this.jobQueue.push(job);
   }
 
   getJobQueue(): UploadJob[] {

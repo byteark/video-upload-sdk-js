@@ -3,5 +3,8 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   modulePathIgnorePatterns: ['./build/'],
-  transformIgnorePatterns: ['/node_modules/(?!jose)'],
+  moduleNameMapper: {
+    "^jose": require.resolve("jose"),
+  },
+  setupFilesAfterEnv: ['./jest.setup.ts']
 };
