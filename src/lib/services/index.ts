@@ -93,8 +93,6 @@ export async function getStreamAccessToken(
       },
     );
 
-    console.log(response)
-
     if (!response.ok) {
       throw new Error(
         `Error fetching Stream access token HTTP Error code: ${response.status}`,
