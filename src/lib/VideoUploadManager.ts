@@ -120,6 +120,10 @@ export class VideoUploadManager {
   async addUploadJobs(files: FileList): Promise<void> {
     const filesArray: File[] = Array.from(files);
 
+    if (!this.authorizationToken) {
+      await this.getAuthorizationToken();
+    }
+
     const videoKeys: string[] = await videoObjectsCreator({
       appId: this.options.formId,
       files: filesArray,
