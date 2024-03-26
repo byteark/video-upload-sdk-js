@@ -55,7 +55,7 @@ export interface UploadManagerCallbacks {
 
 export interface UploadManagerOptions extends UploadManagerCallbacks {
   serviceName: ServiceName;
-  serviceEndpoint: string;
+  serviceEndpoint?: string;
   projectKey: string;
   formId: string;
   formSecret: string;

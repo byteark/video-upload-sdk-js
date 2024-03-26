@@ -267,34 +267,49 @@ describe('VideoUploadManager.options', () => {
     expect(() => new VideoUploadManager('hello!')).toThrow(
       "An 'options' parameter needs to be an object.",
     );
+  });
 
+  test('has all required options', () => {
     // @ts-expect-error Missing serviceName and serviceEndpoint
     expect(() => new VideoUploadManager({ maximumConcurrentJobs: 10 })).toThrow(
-      'serviceName and serviceEndpoint are required in the option parameter.',
+      'serviceName, formId, formSecret, projectKey are required in the option parameter.',
     );
 
     expect(
       // @ts-expect-error Missing serviceEndpoint
       () => new VideoUploadManager({ serviceName: 'byteark.stream' }),
-    ).toThrow('serviceEndpoint is required in the option parameter.');
-
-    expect(
-      () =>
-        // @ts-expect-error Missing serviceName
-        new VideoUploadManager({
-          serviceEndpoint: 'https://stream.byteark.com',
-        }),
-    ).toThrow('serviceName is required in the option parameter.');
+    ).toThrow('formId, formSecret, projectKey are required in the option parameter.');
 
     expect(
       () =>
         new VideoUploadManager({
           serviceName: 'byteark.stream',
           serviceEndpoint: 'https://stream.byteark.com',
-          formId: '',
+          formId: '1234',
           formSecret: '',
-          projectKey: '',
+          projectKey: 'abc',
         }),
-    ).toBeTruthy();
-  });
+    ).toThrow('formSecret is required in the option parameter.');
+
+    expect(
+      () =>
+        new VideoUploadManager({
+          serviceName: 'byteark.stream',
+          serviceEndpoint: 'https://stream.byteark.com',
+          formId: '1234',
+          formSecret: '5678',
+          projectKey: 'abc',
+        }),
+    ).not.toThrow();
+
+    expect(
+      () =>
+        new VideoUploadManager({
+          serviceName: 'byteark.stream',
+          formId: '1234',
+          formSecret: '5678',
+          projectKey: 'abc',
+        }),
+    ).not.toThrow();
+  })
 });
