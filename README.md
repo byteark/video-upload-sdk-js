@@ -32,7 +32,7 @@ async function main() {
     // SDK Options
     serviceName: 'byteark.stream' | 'byteark.qoder',
     serviceEndpoint:
-      'https://stream.byteark.com' | 'https://qoder.byteark.com/apps/<appIdHere>/ajax',
+      'https://stream.byteark.com' | 'https://qoder.byteark.com/apps/<appId>/ajax',
     formId: '<formId(Stream)>' | '<appId(Qoder)>',
     formSecret: '<formSecret>',
     projectKey: '<projectKey(Stream)>' | '<projectId(Qoder)>',
@@ -67,7 +67,7 @@ main();
 You are required to [create a form upload](https://docs.byteark.com/th/stream/developer-forms.html#%E0%B8%82%E0%B8%B1%E0%B9%89%E0%B8%99%E0%B8%95%E0%B8%AD%E0%B8%99%E0%B8%97%E0%B8%B5%E0%B9%88-1-%E0%B8%AA%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%87%E0%B9%81%E0%B8%9A%E0%B8%9A%E0%B8%9F%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%A1%E0%B8%AD%E0%B8%B1%E0%B8%9B%E0%B9%82%E0%B8%AB%E0%B8%A5%E0%B8%94%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B8%84%E0%B8%B8%E0%B8%93%E0%B9%83%E0%B8%99-byteark-stream) to use this SDK. You will obtain `formId` and `formSecret` after creating the form.
 
 - **serviceName**: Please use `byteark.stream`
-- **serviceEndpoint**: For uploading from front-end, please use `https://stream.byteark.com`
+- **serviceEndpoint**: An optional field, you can customize an endpoint here. A default value is `https://stream.byteark.com`
 - **formId**: Please use your form upload's `formId`
 - **formSecret**: Please use your form upload's `formSecret`
 - **projectKey**: Please use the `projectKey` that you want to upload videos into. Please refer to this [documentation](https://docs.byteark.com/th/stream/project-management-overview.html#%E0%B8%A7%E0%B8%B4%E0%B8%98%E0%B8%B5%E0%B8%99%E0%B9%8D%E0%B8%B2%E0%B8%84%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B9%82%E0%B8%9B%E0%B8%A3%E0%B9%80%E0%B8%88%E0%B8%81%E0%B8%95%E0%B9%8C%E0%B9%84%E0%B8%9B%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99) to get your project key.
@@ -77,7 +77,7 @@ You are required to [create a form upload](https://docs.byteark.com/th/stream/de
 ByteArk Qoder is our legacy service. Please contact ByteArk admin for Qoder's `appId` and `appSecret`.
 
 - **serviceName**: Please use `byteark.qoder`
-- **serviceEndpoint**: For uploading from front-end, please use `https://qoder.byteark.com/apps/<appId>/ajax`
+- **serviceEndpoint**: An optional field, you can customize an endpoint here. A default value is `https://qoder.byteark.com/apps/<appId>/ajax`
 - **formId**: Please use `appId`
 - **formSecret**: Please use `appSecret`
 - **projectKey**: Please use the project's ID that you want to upload videos into.
