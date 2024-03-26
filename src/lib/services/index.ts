@@ -1,8 +1,10 @@
 import {
   QoderVideoObject,
   StreamVideoObject,
+  VideoFileObject,
   VideoObjectsCreatorProps,
 } from '../types';
+import { isVideoFileObjects } from '../utils/typeGuard';
 
 export async function videoObjectsCreator(
   props: VideoObjectsCreatorProps,
@@ -20,22 +22,41 @@ export async function videoObjectsCreator(
     ? 'https://stream.byteark.com/api/v1/videos'
     : `https://qoder.byteark.com/apps/${appId}/ajax/videos/bulk`;
 
+  let videoFileObjects: VideoFileObject[] = [];
+
+  if (isVideoFileObjects(files)) {
+    videoFileObjects = files.map((videoFileObject) => ({
+      ...videoFileObject,
+      videoMetadata: {
+        ...videoFileObject.videoMetadata,
+        title: videoFileObject.videoMetadata.title ?? videoFileObject.file.name,
+      },
+    }));
+  } else {
+    videoFileObjects = files.map((file) => ({
+      file,
+      videoMetadata: {
+        title: file.name,
+      },
+    }));
+  }
+
   const requestBody = isStream
     ? {
         projectKey,
-        videos: files.map((file) => ({
-          title: file.name,
+        videos: videoFileObjects.map((videoFileObject) => ({
+          ...videoFileObject,
           source: {
-            type: file.type,
-            size: file.size,
-            fileName: file.name,
+            type: videoFileObject.file.type,
+            size: videoFileObject.file.size,
+            fileName: videoFileObject.file.name,
           },
         })),
       }
     : {
-        videos: files.map((file) => ({
-          title: file.name,
-          size: file.size,
+        videos: videoFileObjects.map((videoFileObject) => ({
+          title: videoFileObject.videoMetadata.name,
+          size: videoFileObject.file.size,
           project: {
             id: projectKey,
           },
