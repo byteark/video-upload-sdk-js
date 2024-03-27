@@ -58,14 +58,20 @@ export class VideoUploadManager {
       throw new Error("An 'options' parameter needs to be an object.");
     }
 
-    const requiredOptionFields = ['serviceName', 'serviceEndpoint'];
+    const requiredOptionFields = [
+      'serviceName',
+      'formId',
+      'formSecret',
+      'projectKey',
+    ];
+
     const missingRequiredOptions = requiredOptionFields.filter(
       (option) => !options[option],
     );
 
     if (missingRequiredOptions.length > 0) {
       throw new Error(
-        `${missingRequiredOptions.join(' and ')} ${missingRequiredOptions.length > 1 ? 'are' : 'is'} required in the option parameter.`,
+        `${missingRequiredOptions.join(', ')} ${missingRequiredOptions.length > 1 ? 'are' : 'is'} required in the option parameter.`,
       );
     }
 
@@ -74,6 +80,17 @@ export class VideoUploadManager {
     this.jobsByUploadId = new Map<UploadId, UploadJob>();
     this.started = false;
     this.maximumConcurrentJobs = options.maximumConcurrentJobs || 3;
+
+    if (!options.serviceEndpoint) {
+      if (options.serviceName === 'byteark.stream') {
+        this.options.serviceEndpoint = 'https://stream.byteark.com';
+      }
+
+      if (options.serviceName === 'byteark.qoder') {
+        this.options.serviceEndpoint = `https://qoder.byteark.com/apps/${options.formId}/ajax`;
+      }
+    }
+
     this.getAuthorizationToken();
   }
 

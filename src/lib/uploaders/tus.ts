@@ -22,6 +22,8 @@ export class TusUploader implements UploaderInterface {
   ) {}
 
   async start(): Promise<UploadJob> {
+    let isUploadStarted = false;
+
     return new Promise<UploadJob>((resolve, reject) => {
       this.currentUploader = new Upload(this.job.file, {
         storeFingerprintForResuming: false,
@@ -34,6 +36,14 @@ export class TusUploader implements UploaderInterface {
           if (this.authorizationToken) {
             const xhr = req.getUnderlyingObject();
             xhr.withCredentials = true;
+          }
+
+          if (!isUploadStarted) {
+            isUploadStarted = true;
+
+            if (typeof this.options.onUploadStarted === 'function') {
+              this.options.onUploadStarted(this.job);
+            }
           }
         },
         onShouldRetry: (error) => this.onShouldRetry(error),
