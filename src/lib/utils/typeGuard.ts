@@ -11,8 +11,6 @@ export function isVideoFileObject(object: unknown): object is VideoFileObject {
   );
 }
 
-export function isVideoFileObjects(
-  array: Array<unknown>,
-): array is VideoFileObject[] {
+export function isVideoFileObjects(array: unknown): array is VideoFileObject[] {
   return Array.isArray(array) && array.every((item) => isVideoFileObject(item));
 }

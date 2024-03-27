@@ -1,5 +1,6 @@
 import { getStreamAccessToken, videoObjectsCreator } from './services';
 import {
+  AcceptableFiles,
   CreateUploader,
   UploaderInterface,
   UploadJob,
@@ -140,17 +141,17 @@ export class VideoUploadManager {
    * Create video objects and add them to the queue.
    * @param videoFileObjects An array of Files. Video titles will be a name of each file.
    */
-  async addUploadJobs(videoFileObjects: File[]): Promise<void>;
+  async addUploadJobs(videoFileObjects: AcceptableFiles): Promise<void>;
 
   async addUploadJobs(
-    videoFileObjects: VideoFileObject[] | File[],
+    videoFileObjects: VideoFileObject[] | AcceptableFiles,
   ): Promise<void> {
     let filesArray: File[] = [];
 
     if (isVideoFileObjects(videoFileObjects)) {
       filesArray = videoFileObjects.map((fileObjects) => fileObjects.file);
     } else {
-      filesArray = videoFileObjects;
+      filesArray = Array.from(videoFileObjects);
     }
 
     if (!this.authorizationToken) {

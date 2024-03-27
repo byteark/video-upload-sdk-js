@@ -33,7 +33,7 @@ export async function videoObjectsCreator(
       },
     }));
   } else {
-    videoFileObjects = files.map((file) => ({
+    videoFileObjects = Array.from(files).map((file) => ({
       file,
       videoMetadata: {
         title: file.name,
