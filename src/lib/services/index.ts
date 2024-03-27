@@ -45,7 +45,7 @@ export async function videoObjectsCreator(
     ? {
         projectKey,
         videos: videoFileObjects.map((videoFileObject) => ({
-          ...videoFileObject,
+          ...videoFileObject.videoMetadata,
           source: {
             type: videoFileObject.file.type,
             size: videoFileObject.file.size,
