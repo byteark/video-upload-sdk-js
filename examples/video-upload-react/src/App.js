@@ -86,6 +86,7 @@ function App() {
     maximumConcurrentJobs: 2,
     formId: '',
     formSecret: '',
+    projectKey: '',
     onUploadProgress: () => {
       console.log('Example: onUploadProgress');
       setJobs([...uploadManager.getJobQueue()]);
@@ -112,28 +113,40 @@ function App() {
   useEffect(() => {
     // We need only one VideoUploadManager
     // without recreating it every render.
+    if (uploadManager) {
+      return;
+    }
+
+    if (
+      !defaultUploadManagerOptions.formId ||
+      !defaultUploadManagerOptions.formSecret ||
+      !defaultUploadManagerOptions.projectKey
+    ) {
+      return;
+    }
+
     console.log(
       'Example: creating VideoUploadManager',
       defaultUploadManagerOptions,
     );
 
-    const uploadManager = new VideoUploadManager({
+    const newUploadManager = new VideoUploadManager({
       ...defaultUploadManagerOptions,
       onUploadProgress: () => {
         console.log('Example: onUploadProgress');
-        setJobs([...uploadManager.getJobQueue()]);
+        setJobs([...newUploadManager.getJobQueue()]);
       },
       onUploadCompleted: () => {
         console.log('Example: onUploadCompleted');
-        setJobs([...uploadManager.getJobQueue()]);
+        setJobs([...newUploadManager.getJobQueue()]);
       },
       onUploadFailed: () => {
         console.log('Example: onUploadFailed');
-        setJobs([...uploadManager.getJobQueue()]);
+        setJobs([...newUploadManager.getJobQueue()]);
       },
     });
-    setUploadManager(uploadManager);
-  }, []);
+    setUploadManager(newUploadManager);
+  }, [uploadManager, defaultUploadManagerOptions]);
 
   const onSubmitUploadManagerOptions = useCallback(
     (event) => {
@@ -146,9 +159,36 @@ function App() {
         formSecret: event.target.formSecret.value,
         projectKey: event.target.projectKey.value,
       };
-      setUploadManagerOptions(options);
-      uploadManager.setOptions(options);
-      console.log('Example: onSubmitUploadManagerOptions', options);
+
+      if (!options.formId || !options.formSecret || !options.projectKey) {
+        alert('Please enter required fields.');
+        return;
+      }
+
+      if (!uploadManager) {
+        console.log('Example: creating VideoUploadManager', options);
+
+        const newUploadManager = new VideoUploadManager({
+          ...options,
+          onUploadProgress: () => {
+            console.log('Example: onUploadProgress');
+            setJobs([...newUploadManager.getJobQueue()]);
+          },
+          onUploadCompleted: () => {
+            console.log('Example: onUploadCompleted');
+            setJobs([...newUploadManager.getJobQueue()]);
+          },
+          onUploadFailed: () => {
+            console.log('Example: onUploadFailed');
+            setJobs([...newUploadManager.getJobQueue()]);
+          },
+        });
+        setUploadManager(newUploadManager);
+      } else {
+        setUploadManagerOptions(options);
+        uploadManager.setOptions(options);
+        console.log('Example: onSubmitUploadManagerOptions', options);
+      }
     },
     [uploadManager],
   );
