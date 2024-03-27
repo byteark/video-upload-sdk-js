@@ -93,7 +93,7 @@ ByteArk Qoder is our legacy service. Please contact ByteArk admin for Qoder's `a
 
 ## Methods
 
-### addUploadJobs(files: File[] | VideoFileObject[]): `Promise<void>`
+### addUploadJobs(files: FileList | File[] | VideoFileObject[]): `Promise<void>`
 
 Add videos that you want to upload. The SDK will create videos from the inputted files, trigger "onVideosCreated" callback, and add them to a job queue.
 
