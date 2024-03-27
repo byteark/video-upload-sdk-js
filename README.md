@@ -99,8 +99,8 @@ Add videos that you want to upload. The SDK will create videos from the inputted
 
 #### Parameters
 
-`files` can be either an array of `File` or `VideoFileObject` type.
-- You can simply use an array of `File` to upload videos. Your video titles will be a name of the uploaded file.
+`files` can be `FileList`, `File[]`,  or `VideoFileObject[]` type.
+- You can simply use an array of `File` or `FileList` to upload videos. Your video titles will be a name of the uploaded file.
 - You can use `VideoFileObject` if you want to specify more details to your video. `VideoFileObject` is an object containing the following fields:
   - `file`: Your video file.
   - `videoMetadata`: An object containing any pair of string value, with no required fields. Example object fields are:
