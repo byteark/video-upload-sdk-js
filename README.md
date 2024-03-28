@@ -93,9 +93,19 @@ ByteArk Qoder is our legacy service. Please contact ByteArk admin for Qoder's `a
 
 ## Methods
 
-### addUploadJobs(files: FileList): `Promise<void>`
+### addUploadJobs(files: FileList | File[] | VideoFileObject[]): `Promise<void>`
 
 Add videos that you want to upload. The SDK will create videos from the inputted files, trigger "onVideosCreated" callback, and add them to a job queue.
+
+#### Parameters
+
+`files` can be `FileList`, `File[]`,  or `VideoFileObject[]` type.
+- You can simply use an array of `File` or `FileList` to upload videos. Your video titles will be a name of the uploaded file.
+- You can use `VideoFileObject` if you want to specify more details to your video. `VideoFileObject` is an object containing the following fields:
+  - `file`: Your video file.
+  - `videoMetadata`: An object containing any pair of string value, with no required fields. Example object fields are:
+    - `title` A title of your video.
+    - `tags` Tags of your video.
 
 ### setOptions(newOptions: UploadManagerOptions): `void`
 

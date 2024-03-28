@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { VideoUploadManager } from '@byteark/video-upload-sdk';
 import { SdkConfigForm } from './components/SdkConfigForm';
 import { UploadForm } from './components/UploadForm';
@@ -86,21 +86,7 @@ function App() {
     maximumConcurrentJobs: 2,
     formId: '',
     formSecret: '',
-    onUploadProgress: () => {
-      console.log('Example: onUploadProgress');
-      setJobs([...uploadManager.getJobQueue()]);
-    },
-    onUploadCompleted: () => {
-      console.log('Example: onUploadCompleted');
-      setJobs([...uploadManager.getJobQueue()]);
-    },
-    onUploadFailed: () => {
-      console.log('Example: onUploadFailed');
-      setJobs([...uploadManager.getJobQueue()]);
-    },
-    onVideosCreated: (videoKeys) => {
-      console.log(`Videos created: ${videoKeys}`);
-    },
+    projectKey: '',
   };
 
   const [jobs, setJobs] = useState([]);
@@ -108,32 +94,6 @@ function App() {
     defaultUploadManagerOptions,
   );
   const [uploadManager, setUploadManager] = useState(null);
-
-  useEffect(() => {
-    // We need only one VideoUploadManager
-    // without recreating it every render.
-    console.log(
-      'Example: creating VideoUploadManager',
-      defaultUploadManagerOptions,
-    );
-
-    const uploadManager = new VideoUploadManager({
-      ...defaultUploadManagerOptions,
-      onUploadProgress: () => {
-        console.log('Example: onUploadProgress');
-        setJobs([...uploadManager.getJobQueue()]);
-      },
-      onUploadCompleted: () => {
-        console.log('Example: onUploadCompleted');
-        setJobs([...uploadManager.getJobQueue()]);
-      },
-      onUploadFailed: () => {
-        console.log('Example: onUploadFailed');
-        setJobs([...uploadManager.getJobQueue()]);
-      },
-    });
-    setUploadManager(uploadManager);
-  }, []);
 
   const onSubmitUploadManagerOptions = useCallback(
     (event) => {
@@ -146,9 +106,44 @@ function App() {
         formSecret: event.target.formSecret.value,
         projectKey: event.target.projectKey.value,
       };
-      setUploadManagerOptions(options);
-      uploadManager.setOptions(options);
-      console.log('Example: onSubmitUploadManagerOptions', options);
+
+      if (!options.formId || !options.formSecret || !options.projectKey) {
+        alert('Please enter required fields.');
+        return;
+      }
+
+      if (!uploadManager) {
+        console.log('Example: Creating VideoUploadManager...');
+
+        const newUploadManager = new VideoUploadManager({
+          ...options,
+          onUploadStarted: (job) => {
+            console.log('Example: onUploadStarted', job);
+          },
+          onUploadProgress: (job, progress) => {
+            console.log('Example: onUploadProgress', { job, progress });
+            setJobs([...newUploadManager.getJobQueue()]);
+          },
+          onUploadCompleted: (job) => {
+            console.log('Example: onUploadCompleted', job);
+            setJobs([...newUploadManager.getJobQueue()]);
+          },
+          onUploadFailed: (job, error) => {
+            console.log('Example: onUploadFailed', { job, error });
+            setJobs([...newUploadManager.getJobQueue()]);
+          },
+          onVideosCreated: (videoKeys) => {
+            console.log(`Videos created: ${videoKeys}`);
+          },
+        });
+        setUploadManager(newUploadManager);
+
+        console.log('Example: VideoUploadManager Created', newUploadManager);
+      } else {
+        setUploadManagerOptions(options);
+        uploadManager.setOptions(options);
+        console.log('Example: onSubmitUploadManagerOptions', options);
+      }
     },
     [uploadManager],
   );
@@ -163,7 +158,6 @@ function App() {
 
     await uploadManager.addUploadJobs(files);
 
-    console.log(uploadManager.getJobQueue());
     setJobs([...uploadManager.getJobQueue()]);
   };
 
@@ -186,7 +180,7 @@ function App() {
     async (uploadId) => {
       console.log('Example: onClickPauseButton');
 
-      console.log(uploadManager.pauseUploadById(uploadId));
+      uploadManager.pauseUploadById(uploadId);
       setJobs([...uploadManager.getJobQueue()]);
     },
     [uploadManager],

@@ -8,6 +8,20 @@ export type UploadJobStatus =
   | 'cancelled'
   | 'paused';
 
+export type AcceptableFiles = FileList | File[];
+
+export interface VideoTag {
+  name: string;
+}
+
+export interface VideoFileObject {
+  file: File;
+  videoMetadata: Record<string, unknown> & {
+    title?: string;
+    tags?: VideoTag[];
+  };
+}
+
 export interface UploadJob {
   uploadId: string | number;
   file: File;
@@ -94,7 +108,7 @@ export interface QoderVideoObject {
 export interface VideoObjectsCreatorProps {
   appId?: string;
   authorizationToken: string;
-  files: File[];
+  files: VideoFileObject[] | AcceptableFiles;
   projectKey: string;
   serviceName: ServiceName;
 }

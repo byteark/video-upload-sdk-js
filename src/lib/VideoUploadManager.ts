@@ -1,12 +1,15 @@
 import { getStreamAccessToken, videoObjectsCreator } from './services';
 import {
+  AcceptableFiles,
   CreateUploader,
   UploaderInterface,
   UploadJob,
   UploadManagerOptions,
+  VideoFileObject,
 } from './types';
 import { createTusUploader } from './uploaders';
 import { signJWTToken, transformVideoObjectsToJobList } from './utils';
+import { isVideoFileObjects } from './utils/typeGuard';
 // import { delay } from './utils';
 
 type UploadId = string | number;
@@ -129,13 +132,27 @@ export class VideoUploadManager {
   }
 
   /**
-   * Create video objects and add upload jobs to the queue.
-   * Use this function to upload video files to ByteArk Stream or Qoder.
-   *
-   * @param files Video file list
+   * Create video objects and add them to the queue.
+   * @param videoFileObjects An array of object with 'file' and 'videoMetadata' fields.
    */
-  async addUploadJobs(files: FileList): Promise<void> {
-    const filesArray: File[] = Array.from(files);
+  async addUploadJobs(videoFileObjects: VideoFileObject[]): Promise<void>;
+
+  /**
+   * Create video objects and add them to the queue.
+   * @param videoFileObjects An array of Files. Video titles will be a name of each file.
+   */
+  async addUploadJobs(videoFileObjects: AcceptableFiles): Promise<void>;
+
+  async addUploadJobs(
+    videoFileObjects: VideoFileObject[] | AcceptableFiles,
+  ): Promise<void> {
+    let filesArray: File[] = [];
+
+    if (isVideoFileObjects(videoFileObjects)) {
+      filesArray = videoFileObjects.map((fileObjects) => fileObjects.file);
+    } else {
+      filesArray = Array.from(videoFileObjects);
+    }
 
     if (!this.authorizationToken) {
       await this.getAuthorizationToken();
@@ -143,7 +160,7 @@ export class VideoUploadManager {
 
     const videoKeys: string[] = await videoObjectsCreator({
       appId: this.options.formId,
-      files: filesArray,
+      files: videoFileObjects,
       projectKey: this.options.projectKey,
       authorizationToken: this.authorizationToken,
       serviceName: this.options.serviceName,

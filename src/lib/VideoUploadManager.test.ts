@@ -17,14 +17,14 @@ jest.mock('jose', () => ({
   }))
 }));
 
-const createFileList = (files: File[]): FileList => {
-  const fileList = { length: files.length } as FileList;
-  files.forEach((file, index) => {
-    fileList[index] = file;
-  });
-  fileList.item = (index: number) => fileList[index];
-  return fileList;
-};
+// const createFileList = (files: File[]): FileList => {
+//   const fileList = { length: files.length } as FileList;
+//   files.forEach((file, index) => {
+//     fileList[index] = file;
+//   });
+//   fileList.item = (index: number) => fileList[index];
+//   return fileList;
+// };
 
 // Example usage
 const files = [
@@ -33,7 +33,7 @@ const files = [
   new File([''], 'filename3')
 ];
 
-const fakeFileList = createFileList(files);
+const fakeFileList = files;
 
 fetchMock.mockResponse(async (req) => {
   if (req.url === 'https://stream.byteark.com/api/v1/videos') {
@@ -103,19 +103,19 @@ describe('VideoUploadManager UseCase', () => {
 
     expect(uploadManager.getJobQueue()).toStrictEqual([
       {
-        file: fakeFileList.item(0),
+        file: fakeFileList[0],
         name: 'filename',
         status: 'pending',
         uploadId: 'video-key-1',
       },
       {
-        file: fakeFileList.item(1),
+        file: fakeFileList[1],
         name: 'filename2',
         status: 'pending',
         uploadId: 'video-key-2',
       },
       {
-        file: fakeFileList.item(2),
+        file: fakeFileList[2],
         name: 'filename3',
         status: 'pending',
         uploadId: 'video-key-3',
