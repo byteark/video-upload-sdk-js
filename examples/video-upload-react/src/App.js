@@ -87,21 +87,6 @@ function App() {
     formId: '',
     formSecret: '',
     projectKey: '',
-    onUploadProgress: () => {
-      console.log('Example: onUploadProgress');
-      setJobs([...uploadManager.getJobQueue()]);
-    },
-    onUploadCompleted: () => {
-      console.log('Example: onUploadCompleted');
-      setJobs([...uploadManager.getJobQueue()]);
-    },
-    onUploadFailed: () => {
-      console.log('Example: onUploadFailed');
-      setJobs([...uploadManager.getJobQueue()]);
-    },
-    onVideosCreated: (videoKeys) => {
-      console.log(`Videos created: ${videoKeys}`);
-    },
   };
 
   const [jobs, setJobs] = useState([]);
@@ -146,6 +131,9 @@ function App() {
           onUploadFailed: (job, error) => {
             console.log('Example: onUploadFailed', { job, error });
             setJobs([...newUploadManager.getJobQueue()]);
+          },
+          onVideosCreated: (videoKeys) => {
+            console.log(`Videos created: ${videoKeys}`);
           },
         });
         setUploadManager(newUploadManager);
