@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { VideoUploadManager } from '@byteark/video-upload-sdk';
 import { SdkConfigForm } from './components/SdkConfigForm';
 import { UploadForm } from './components/UploadForm';
@@ -110,44 +110,6 @@ function App() {
   );
   const [uploadManager, setUploadManager] = useState(null);
 
-  useEffect(() => {
-    // We need only one VideoUploadManager
-    // without recreating it every render.
-    if (uploadManager) {
-      return;
-    }
-
-    if (
-      !defaultUploadManagerOptions.formId ||
-      !defaultUploadManagerOptions.formSecret ||
-      !defaultUploadManagerOptions.projectKey
-    ) {
-      return;
-    }
-
-    console.log(
-      'Example: creating VideoUploadManager',
-      defaultUploadManagerOptions,
-    );
-
-    const newUploadManager = new VideoUploadManager({
-      ...defaultUploadManagerOptions,
-      onUploadProgress: () => {
-        console.log('Example: onUploadProgress');
-        setJobs([...newUploadManager.getJobQueue()]);
-      },
-      onUploadCompleted: () => {
-        console.log('Example: onUploadCompleted');
-        setJobs([...newUploadManager.getJobQueue()]);
-      },
-      onUploadFailed: () => {
-        console.log('Example: onUploadFailed');
-        setJobs([...newUploadManager.getJobQueue()]);
-      },
-    });
-    setUploadManager(newUploadManager);
-  }, [uploadManager, defaultUploadManagerOptions]);
-
   const onSubmitUploadManagerOptions = useCallback(
     (event) => {
       event.preventDefault();
@@ -166,24 +128,29 @@ function App() {
       }
 
       if (!uploadManager) {
-        console.log('Example: creating VideoUploadManager', options);
+        console.log('Example: Creating VideoUploadManager...');
 
         const newUploadManager = new VideoUploadManager({
           ...options,
-          onUploadProgress: () => {
-            console.log('Example: onUploadProgress');
+          onUploadStarted: (job) => {
+            console.log('Example: onUploadStarted', job);
+          },
+          onUploadProgress: (job, progress) => {
+            console.log('Example: onUploadProgress', { job, progress });
             setJobs([...newUploadManager.getJobQueue()]);
           },
-          onUploadCompleted: () => {
-            console.log('Example: onUploadCompleted');
+          onUploadCompleted: (job) => {
+            console.log('Example: onUploadCompleted', job);
             setJobs([...newUploadManager.getJobQueue()]);
           },
-          onUploadFailed: () => {
-            console.log('Example: onUploadFailed');
+          onUploadFailed: (job, error) => {
+            console.log('Example: onUploadFailed', { job, error });
             setJobs([...newUploadManager.getJobQueue()]);
           },
         });
         setUploadManager(newUploadManager);
+
+        console.log('Example: VideoUploadManager Created', newUploadManager);
       } else {
         setUploadManagerOptions(options);
         uploadManager.setOptions(options);
@@ -203,7 +170,6 @@ function App() {
 
     await uploadManager.addUploadJobs(files);
 
-    console.log(uploadManager.getJobQueue());
     setJobs([...uploadManager.getJobQueue()]);
   };
 
@@ -226,7 +192,7 @@ function App() {
     async (uploadId) => {
       console.log('Example: onClickPauseButton');
 
-      console.log(uploadManager.pauseUploadById(uploadId));
+      uploadManager.pauseUploadById(uploadId);
       setJobs([...uploadManager.getJobQueue()]);
     },
     [uploadManager],
