@@ -142,19 +142,25 @@ export class TusUploader implements UploaderInterface {
 
   onProgress(bytesUploaded: number, bytesTotal: number): void {
     this.job.status = 'uploading';
-    this.job.progress = {
+
+    const progress = Object.freeze({
       bytesUploaded,
       bytesTotal,
       percent: makeProgressPercent(bytesUploaded, bytesTotal),
-    };
+    });
+
+    const job = Object.freeze({
+      ...this.job,
+      progress,
+    });
+
+    this.job.progress = progress;
 
     if (!this.options.onUploadProgress) {
       return;
     }
 
-    this.triggerCallback(() =>
-      this.options.onUploadProgress(this.job, this.job.progress),
-    );
+    this.triggerCallback(() => this.options.onUploadProgress(job, progress));
   }
 
   onSuccess(): void {

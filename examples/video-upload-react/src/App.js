@@ -208,7 +208,7 @@ function App() {
   ));
 
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className="container mx-auto px-4 py-4 sm:max-w-full md:max-w-full lg:max-w-screen-xl">
       <div className="App">
         <h1 className="text-2xl mb-4 font-bold">
           Video Upload SDK React Example
