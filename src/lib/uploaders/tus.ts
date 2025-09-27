@@ -13,6 +13,8 @@ export class TusUploader implements UploaderInterface {
     0, 5000, 5000, 10000, 10000, 15000, 15000, 20000, 20000, 30000, 30000,
   ];
 
+  defaultChunkSize = 1024 * 1024 * 100;
+
   private currentUploader: Upload;
 
   constructor(
@@ -32,6 +34,7 @@ export class TusUploader implements UploaderInterface {
         headers: this.createHeaders(),
         metadata: this.createMetadata(this.job),
         retryDelays: this.defaultRetryDelays,
+        chunkSize: this.defaultChunkSize,
         onBeforeRequest: (req) => {
           if (this.authorizationToken) {
             const xhr = req.getUnderlyingObject();
