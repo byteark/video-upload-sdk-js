@@ -1,6 +1,6 @@
 {
   "name": "@byteark/video-upload-sdk",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "Uploading video files directly from user's browser to ByteArk Stream and Qoder",
   "main": "build/main/index.js",
   "types": "build/main/index.d.ts",
