@@ -111,4 +111,5 @@ export interface VideoObjectsCreatorProps {
   files: VideoFileObject[] | AcceptableFiles;
   projectKey: string;
   serviceName: ServiceName;
+  overlayPresetId?: string;
 }

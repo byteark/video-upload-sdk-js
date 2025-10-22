@@ -9,7 +9,7 @@ import { isVideoFileObjects } from '../utils/typeGuard';
 export async function videoObjectsCreator(
   props: VideoObjectsCreatorProps,
 ): Promise<string[]> {
-  const { appId, authorizationToken, files, projectKey, serviceName } = props;
+  const { appId, authorizationToken, files, projectKey, serviceName, overlayPresetId } = props;
 
   const isStream = serviceName === 'byteark.stream';
   const isQoder = serviceName === 'byteark.qoder';
@@ -52,6 +52,7 @@ export async function videoObjectsCreator(
             fileName: videoFileObject.file.name,
           },
         })),
+        ...(overlayPresetId) ? { overlayPresetId } : {}
       }
     : {
         videos: videoFileObjects.map((videoFileObject) => ({
