@@ -115,3 +115,25 @@ export interface VideoObjectsCreatorProps {
   serviceName: ServiceName;
   overlayPresetId?: string;
 }
+
+export type StreamRequestBody = {
+  projectKey: string;
+  videos: ({
+    source: {
+      type: string;
+      size: number;
+      fileName: string;
+    };
+  } & Record<string, unknown>)[];
+  overlayPresetId?: string;
+};
+
+export type QoderRequestBody = {
+  videos: {
+    title: string;
+    size: number;
+    project: {
+      id: string;
+    };
+  }[];
+};

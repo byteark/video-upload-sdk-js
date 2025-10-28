@@ -4,6 +4,7 @@ import {
   VideoFileObject,
   VideoObjectsCreatorProps,
 } from '../types';
+import { QoderRequestBody, StreamRequestBody } from '../types';
 import { isVideoFileObjects } from '../utils/typeGuard';
 
 export async function videoObjectsCreator(
@@ -165,28 +166,3 @@ async function uploadVideos(body: StreamRequestBody | QoderRequestBody, requestU
     ? data.map((video: StreamVideoObject) => video.key)
     : data.map((video: QoderVideoObject) => video.object.source.id);
 }
-
-// --- Return Types ---
-type StreamRequestBody = {
-  projectKey: string;
-  videos: ({
-    source: {
-      type: string;
-      size: number;
-      fileName: string;
-    };
-  } & Record<string, unknown>)[];
-  overlayPresetId?: string;
-};
-
-type QoderRequestBody = {
-  videos: {
-    title: string;
-    size: number;
-    project: {
-      id: string;
-    };
-  }[];
-};
-
-
