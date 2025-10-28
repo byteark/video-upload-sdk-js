@@ -41,52 +41,17 @@ export async function videoObjectsCreator(
     }));
   }
 
-  const requestBody = isStream
-    ? {
-        projectKey,
-        videos: videoFileObjects.map((videoFileObject) => ({
-          ...videoFileObject.videoMetadata,
-          source: {
-            type: videoFileObject.file.type,
-            size: videoFileObject.file.size,
-            fileName: videoFileObject.file.name,
-          },
-        })),
-        ...(overlayPresetId) ? { overlayPresetId } : {}
-      }
-    : {
-        videos: videoFileObjects.map((videoFileObject) => ({
-          title: videoFileObject.videoMetadata.name,
-          size: videoFileObject.file.size,
-          project: {
-            id: projectKey,
-          },
-        })),
-      };
+  const useOverlaysRequestBody = makeRequestBody(projectKey,videoFileObjects.filter((obj) => obj.useOverlayPreset == true), isStream as true, overlayPresetId)
+  const nonUseOverlaysRequestBody = makeRequestBody(projectKey,videoFileObjects.filter((obj) => obj.useOverlayPreset != true), isStream as false)
 
   try {
-    const response = await fetch(requestUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authorizationToken}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
+    const [useOverlayResult, nonUseOverlayResult] = await Promise.all([
+      uploadVideos(useOverlaysRequestBody, requestUrl, authorizationToken, isStream),
+      uploadVideos(nonUseOverlaysRequestBody, requestUrl, authorizationToken, isStream),
+    ]);
 
-    if (!response.ok) {
-      throw new Error(
-        `Error create ${isStream ? 'Stream' : 'Qoder'} video HTTP Error code: ${response.status}`,
-      );
-    }
-
-    const data = await response.json();
-
-    if (isStream) {
-      return data.map((video: StreamVideoObject) => video.key);
-    }
-
-    return data.map((video: QoderVideoObject) => video.object.source.id);
+    // Merge both results
+    return [...useOverlayResult, ...nonUseOverlayResult];
   } catch (error) {
     console.error(error);
     return [];
@@ -135,3 +100,93 @@ export async function getStreamAccessToken(
     return null;
   }
 }
+function makeRequestBody(
+  projectKey: string,
+  videoFileObjects: VideoFileObject[],
+  isStream: true,
+  overlayPresetId?: string
+): StreamRequestBody;
+function makeRequestBody(
+  projectKey: string,
+  videoFileObjects: VideoFileObject[],
+  isStream: false
+): QoderRequestBody;
+function makeRequestBody(
+  projectKey: string,
+  videoFileObjects: VideoFileObject[],
+  isStream: boolean,
+  overlayPresetId?: string
+): StreamRequestBody | QoderRequestBody{
+  if (isStream) {
+    return {
+      projectKey,
+      videos: videoFileObjects.map((videoFileObject) => ({
+        ...videoFileObject.videoMetadata,
+        source: {
+          type: videoFileObject.file.type,
+          size: videoFileObject.file.size,
+          fileName: videoFileObject.file.name,
+        },
+      })),
+      ...(overlayPresetId) ? { overlayPresetId } : {}
+    }
+  } return {
+    videos: videoFileObjects.map((videoFileObject) => ({
+      title: videoFileObject.videoMetadata.title || '',
+      size: videoFileObject.file.size,
+      project: {
+        id: projectKey,
+      },
+    })),
+  }
+}
+
+async function uploadVideos(body: StreamRequestBody | QoderRequestBody, requestUrl: string, authorizationToken: string, isStream: boolean) {
+  if (!body.videos.length) return []; // skip empty body
+
+  const response = await fetch(requestUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${authorizationToken}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Error create ${isStream ? 'Stream' : 'Qoder'} video HTTP Error code: ${response.status}`,
+    );
+  }
+
+  const data = await response.json();
+
+  return isStream
+    ? data.map((video: StreamVideoObject) => video.key)
+    : data.map((video: QoderVideoObject) => video.object.source.id);
+}
+
+// --- Return Types ---
+type StreamRequestBody = {
+  projectKey: string;
+  videos: ({
+    source: {
+      type: string;
+      size: number;
+      fileName: string;
+    };
+  } & Record<string, unknown>)[];
+  overlayPresetId?: string;
+};
+
+type QoderRequestBody = {
+  videos: {
+    title: string;
+    size: number;
+    project: {
+      id: string;
+    };
+  }[];
+};
+
+

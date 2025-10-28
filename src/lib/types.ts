@@ -20,6 +20,7 @@ export interface VideoFileObject {
     title?: string;
     tags?: VideoTag[];
   };
+  useOverlayPreset?: boolean;
 }
 
 export interface UploadJob {
