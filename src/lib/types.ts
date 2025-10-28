@@ -75,6 +75,7 @@ export interface UploadManagerOptions extends UploadManagerCallbacks {
   formSecret: string;
   headers?: KeyValuePair;
   maximumConcurrentJobs?: number;
+  overlayPresetId?: string;
 }
 
 export interface StreamVideoObject {
