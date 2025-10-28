@@ -108,6 +108,7 @@ Add videos that you want to upload. The SDK will create videos from the inputted
   - `videoMetadata`: An object containing any pair of string value, with no required fields. Example object fields are:
     - `title` A title of your video.
     - `tags` Tags of your video.
+  - `useOverlayPreset`: If you set `overlayPresetId`, you can send `useOverlayPreset: true` to mark that this video will use the overlay preset. 
 
 ### setOptions(newOptions: UploadManagerOptions): `void`
 
