@@ -36,6 +36,7 @@ async function main() {
     formId: '<formId(Stream)>' | '<appId(Qoder)>',
     formSecret: '<formSecret>',
     projectKey: '<projectKey(Stream)>' | '<projectId(Qoder)>',
+    overlayPresetId: 'overlayPresetId(Stream)',
 
     // Callback Functions
     onUploadProgress: (job: UploadJob, progress: UploadProgress) => {
@@ -71,6 +72,7 @@ You are required to [create a form upload](https://docs.byteark.com/th/stream/de
 - **formId**: Please use your form upload's `formId`
 - **formSecret**: Please use your form upload's `formSecret`
 - **projectKey**: Please use the `projectKey` that you want to upload videos into. Please refer to this [documentation](https://docs.byteark.com/th/stream/project-management-overview.html#%E0%B8%A7%E0%B8%B4%E0%B8%98%E0%B8%B5%E0%B8%99%E0%B9%8D%E0%B8%B2%E0%B8%84%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%82%E0%B8%AD%E0%B8%87%E0%B9%82%E0%B8%9B%E0%B8%A3%E0%B9%80%E0%B8%88%E0%B8%81%E0%B8%95%E0%B9%8C%E0%B9%84%E0%B8%9B%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99) to get your project key.
+- **overlayPresetId**: Please use the `overlayPresetId` if you want to add an overlay to all videos uploaded through this form.
 
 ### For ByteArk Qoder (Legacy)
 
@@ -106,6 +108,7 @@ Add videos that you want to upload. The SDK will create videos from the inputted
   - `videoMetadata`: An object containing any pair of string value, with no required fields. Example object fields are:
     - `title` A title of your video.
     - `tags` Tags of your video.
+  - `useOverlayPreset`: If you set `overlayPresetId`, you can send `useOverlayPreset: true` to mark that this video will use the overlay preset. 
 
 ### setOptions(newOptions: UploadManagerOptions): `void`
 

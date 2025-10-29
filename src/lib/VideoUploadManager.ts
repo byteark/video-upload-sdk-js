@@ -164,6 +164,9 @@ export class VideoUploadManager {
       projectKey: this.options.projectKey,
       authorizationToken: this.authorizationToken,
       serviceName: this.options.serviceName,
+      ...(this.options.overlayPresetId
+        ? { overlayPresetId: this.options.overlayPresetId }
+        : {}),
     });
 
     if (typeof this.options.onVideosCreated === 'function') {

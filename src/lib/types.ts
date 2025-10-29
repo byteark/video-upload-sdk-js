@@ -18,8 +18,10 @@ export interface VideoFileObject {
   file: File;
   videoMetadata: Record<string, unknown> & {
     title?: string;
+    name?: string;
     tags?: VideoTag[];
   };
+  useOverlayPreset?: boolean;
 }
 
 export interface UploadJob {
@@ -75,6 +77,7 @@ export interface UploadManagerOptions extends UploadManagerCallbacks {
   formSecret: string;
   headers?: KeyValuePair;
   maximumConcurrentJobs?: number;
+  overlayPresetId?: string;
 }
 
 export interface StreamVideoObject {
@@ -111,4 +114,27 @@ export interface VideoObjectsCreatorProps {
   files: VideoFileObject[] | AcceptableFiles;
   projectKey: string;
   serviceName: ServiceName;
+  overlayPresetId?: string;
 }
+
+export type StreamRequestBody = {
+  projectKey: string;
+  videos: ({
+    source: {
+      type: string;
+      size: number;
+      fileName: string;
+    };
+  } & Record<string, unknown>)[];
+  overlayPresetId?: string;
+};
+
+export type QoderRequestBody = {
+  videos: {
+    title: string;
+    size: number;
+    project: {
+      id: string;
+    };
+  }[];
+};
