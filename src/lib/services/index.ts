@@ -10,7 +10,14 @@ import { isVideoFileObjects } from '../utils/typeGuard';
 export async function videoObjectsCreator(
   props: VideoObjectsCreatorProps,
 ): Promise<string[]> {
-  const { appId, authorizationToken, files, projectKey, serviceName, overlayPresetId } = props;
+  const {
+    appId,
+    authorizationToken,
+    files,
+    projectKey,
+    serviceName,
+    overlayPresetId,
+  } = props;
 
   const isStream = serviceName === 'byteark.stream';
   const isQoder = serviceName === 'byteark.qoder';
@@ -42,13 +49,32 @@ export async function videoObjectsCreator(
     }));
   }
 
-  const useOverlaysRequestBody = makeRequestBody(projectKey,videoFileObjects.filter((obj) => obj.useOverlayPreset == true), isStream as true, overlayPresetId)
-  const nonUseOverlaysRequestBody = makeRequestBody(projectKey,videoFileObjects.filter((obj) => obj.useOverlayPreset != true), isStream as false)
+  const useOverlaysRequestBody = makeRequestBody(
+    projectKey,
+    videoFileObjects.filter((obj) => obj.useOverlayPreset == true),
+    isStream as true,
+    overlayPresetId,
+  );
+  const nonUseOverlaysRequestBody = makeRequestBody(
+    projectKey,
+    videoFileObjects.filter((obj) => obj.useOverlayPreset != true),
+    isStream as false,
+  );
 
   try {
     const [useOverlayResult, nonUseOverlayResult] = await Promise.all([
-      uploadVideos(useOverlaysRequestBody, requestUrl, authorizationToken, isStream),
-      uploadVideos(nonUseOverlaysRequestBody, requestUrl, authorizationToken, isStream),
+      uploadVideos(
+        useOverlaysRequestBody,
+        requestUrl,
+        authorizationToken,
+        isStream,
+      ),
+      uploadVideos(
+        nonUseOverlaysRequestBody,
+        requestUrl,
+        authorizationToken,
+        isStream,
+      ),
     ]);
 
     // Merge both results
@@ -105,19 +131,19 @@ function makeRequestBody(
   projectKey: string,
   videoFileObjects: VideoFileObject[],
   isStream: true,
-  overlayPresetId?: string
+  overlayPresetId?: string,
 ): StreamRequestBody;
 function makeRequestBody(
   projectKey: string,
   videoFileObjects: VideoFileObject[],
-  isStream: false
+  isStream: false,
 ): QoderRequestBody;
 function makeRequestBody(
   projectKey: string,
   videoFileObjects: VideoFileObject[],
   isStream: boolean,
-  overlayPresetId?: string
-): StreamRequestBody | QoderRequestBody{
+  overlayPresetId?: string,
+): StreamRequestBody | QoderRequestBody {
   if (isStream) {
     return {
       projectKey,
@@ -129,9 +155,10 @@ function makeRequestBody(
           fileName: videoFileObject.file.name,
         },
       })),
-      ...(overlayPresetId) ? { overlayPresetId } : {}
-    }
-  } return {
+      ...(overlayPresetId ? { overlayPresetId } : {}),
+    };
+  }
+  return {
     videos: videoFileObjects.map((videoFileObject) => ({
       title: videoFileObject.videoMetadata.title || '',
       size: videoFileObject.file.size,
@@ -139,10 +166,15 @@ function makeRequestBody(
         id: projectKey,
       },
     })),
-  }
+  };
 }
 
-async function uploadVideos(body: StreamRequestBody | QoderRequestBody, requestUrl: string, authorizationToken: string, isStream: boolean) {
+async function uploadVideos(
+  body: StreamRequestBody | QoderRequestBody,
+  requestUrl: string,
+  authorizationToken: string,
+  isStream: boolean,
+) {
   if (!body.videos.length) return []; // skip empty body
 
   const response = await fetch(requestUrl, {
