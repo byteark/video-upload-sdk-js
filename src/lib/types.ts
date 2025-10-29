@@ -18,6 +18,7 @@ export interface VideoFileObject {
   file: File;
   videoMetadata: Record<string, unknown> & {
     title?: string;
+    name?: string;
     tags?: VideoTag[];
   };
   useOverlayPreset?: boolean;

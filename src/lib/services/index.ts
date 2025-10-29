@@ -160,7 +160,10 @@ function makeRequestBody(
   }
   return {
     videos: videoFileObjects.map((videoFileObject) => ({
-      title: videoFileObject.videoMetadata.title || '',
+      title:
+        videoFileObject.videoMetadata.title ||
+        videoFileObject.videoMetadata.name ||
+        '',
       size: videoFileObject.file.size,
       project: {
         id: projectKey,
