@@ -71,7 +71,7 @@
   ],
   "resolutions": {
     "conventional-changelog-writer": "^7.0.1",
-    "handlebars": "^4.7.8",
+    "handlebars": "^4.7.9",
     "minimist": "^1.2.8"
   },
   "prettier": {
